@@ -18,12 +18,13 @@ import numpy as np
 class controller:
 	
 	def __init__(self):
+
 		self.roll_controll = PID(1,0,5)
 		self.altitude_control = PID(1,0,0)
-		self.distance_control = PID(1,0,0)
-		self.pitch_control = PID(1,0,0)
+		self.pitch_control = PID(0.5,0,0)
 		self.command = Twist()
 
+		self.state_altitude = 0
 		self.status = -1
 		self.takeoff_time = 0
 		self.image_pos = rospy.Subscriber("data",Quaternion,self.callback)
@@ -48,6 +49,7 @@ class controller:
 		# Note we only send a takeoff message if the drone is landed - an unexpected takeoff is not good!
 		if(self.status == DroneStatus.Landed):
 			self.pubTakeoff.publish(Empty())
+			
 
 	def SendLand(self):
 		# Send a landing message to the ardrone driver
@@ -95,6 +97,19 @@ class controller:
 		y = int(-data.y)/180.0
 		d = int(data.z)
 		state = int(data.w)
+
+		if state == 2:
+			self.roll_controll.setConstants(0.5,0,0)
+		
+
+		if ((state == 2) and (self.state_altitude == 0) and (self.status != 2)):
+			self.SetCommand(0,0,0,1)
+			self.SendCommand()
+			time.sleep(5)
+			self.SetCommand(0,0,0,0)
+			self.SendCommand()
+			self.state_altitude = 1
+
 		if x == 0:
 			self.roll_controll.last_error = 0
 		if y == 0:
@@ -107,7 +122,7 @@ class controller:
 		roll_output = self.roll_controll.update(x)
 		altitude_output = self.altitude_control.update(y)
 		pitch_output = self.pitch_control.update(y)
-		#distance_output = self.distance_control.update()
+		
 		if state == 0:
 			self.SetCommand(roll_output,0,0,altitude_output)
 		else:
