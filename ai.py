@@ -217,7 +217,7 @@ class AttitudeIndicator(QtGui.QWidget):
             
             self.wid = AttitudeIndicator()
 
-            sld.valueChanged[int].connect(self.updateRoll)
+            #sld.valueChanged[int].connect(self.updateRoll)
             vbox.addWidget(self.wid)
 
             hbox = QtGui.QHBoxLayout()
@@ -261,6 +261,7 @@ class AttitudeIndicator(QtGui.QWidget):
 
         app = QtGui.QApplication(sys.argv)
         ex = Example()
+        ex.updateRoll(1900)
         sys.exit(app.exec_())
 
 
