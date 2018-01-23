@@ -98,8 +98,10 @@ class AttitudeIndicator(QtGui.QWidget):
         qp.drawRect(-w, h / 2, 3 * w, -3 * h)
 
         # Draw the marron
-        qp.setPen(QtGui.QColor(59, 41, 39))
-        qp.setBrush(QtGui.QColor(59, 41, 39))
+        #qp.setPen(QtGui.QColor(59, 41, 39))
+        #qp.setBrush(QtGui.QColor(59, 41, 39))
+        qp.setPen(QtGui.QColor(103, 62, 0))
+        qp.setBrush(QtGui.QColor(103, 62, 0))
         qp.drawRect(-w, h / 2, 3 * w, 3 * h)
 
         pen = QtGui.QPen(QtGui.QColor(255, 255, 255), 1.5,
@@ -206,19 +208,37 @@ class AttitudeIndicator(QtGui.QWidget):
         
         def initUI(self):
 
-            vbox = QtGui.QVBoxLayout()
+            vbox = QtGui.QHBoxLayout()
+            textbox = QtGui.QVBoxLayout()
 
-            sld = QtGui.QSlider(QtCore.Qt.Horizontal, self)
-            sld.setFocusPolicy(QtCore.Qt.NoFocus)
-            sld.setRange(0, 3600)
-            sld.setValue(1800)
-            vbox.addWidget(sld)
+            data1 = QtGui.QLabel()
+            data2 = QtGui.QLabel()
+            data3 = QtGui.QLabel()
+            data4 = QtGui.QLabel()
+            data1.setText("Roll")
+            data2.setText("Pitch")
+            data3.setText("Yaw")
+            data4.setText("Altitude")
+            #data1.setGeometry(QtCore.QRect(70, 80, 30, 30))
+            textbox.addWidget(data1)
+            textbox.addWidget(data2)
+            textbox.addWidget(data3)
+            textbox.addWidget(data4)
+
+            #sld = QtGui.QSlider(QtCore.Qt.Horizontal, self)
+            #sld.setFocusPolicy(QtCore.Qt.NoFocus)
+            #sld.setRange(0, 3600)
+            #sld.setValue(1800)
+            #vbox.addWidget(sld)
             
             
             self.wid = AttitudeIndicator()
 
             #sld.valueChanged[int].connect(self.updateRoll)
             vbox.addWidget(self.wid)
+
+            vbox.addLayout(textbox)
+
 
             hbox = QtGui.QHBoxLayout()
             hbox.addLayout(vbox)
@@ -229,6 +249,7 @@ class AttitudeIndicator(QtGui.QWidget):
             sldPitch.setValue(90)
             sldPitch.valueChanged[int].connect(self.updatePitch)
             hbox.addWidget(sldPitch)
+            #hbox.addWidget(data1)
             
             sldASL = QtGui.QSlider(QtCore.Qt.Vertical, self)
             sldASL.setFocusPolicy(QtCore.Qt.NoFocus)
@@ -246,9 +267,11 @@ class AttitudeIndicator(QtGui.QWidget):
             hbox.addWidget(sldASL)
                       
 
-            self.setLayout(hbox)
+            self.setLayout(vbox)
+            #self.setLayout(textbox)
 
-            self.setGeometry(50, 50, 510, 510)
+
+            self.setGeometry(50, 50, 710, 510)
             self.setWindowTitle('Attitude Indicator')
             self.show()
 
@@ -262,6 +285,7 @@ class AttitudeIndicator(QtGui.QWidget):
         app = QtGui.QApplication(sys.argv)
         ex = Example()
         ex.updateRoll(1900)
+        ex.
         sys.exit(app.exec_())
 
 

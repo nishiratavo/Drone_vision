@@ -19,10 +19,10 @@ class image_receiver:
 	def __init__(self, camera = 0) :
 		self.camera = camera
 		self.bridge = CvBridge()
-		self.lower = np.array([0, 0, 70], dtype = "uint8")
-		self.upper = np.array([40, 40, 255], dtype = "uint8")
-		#self.lower = np.array([200, 240, 180], dtype = "uint8")
-		#self.upper = np.array([255, 255, 255], dtype = "uint8")
+		#self.lower = np.array([0, 0, 70], dtype = "uint8")
+		#self.upper = np.array([40, 40, 255], dtype = "uint8")
+		self.lower = np.array([200, 240, 200], dtype = "uint8")
+		self.upper = np.array([255, 255, 255], dtype = "uint8")
 		self.contours = []
 		self.kernelOpen=np.ones((5,5))
 		self.kernelClose=np.ones((20,20))
@@ -34,10 +34,10 @@ class image_receiver:
 
 	def color_detect(self, camera_image):
 		mask = cv2.inRange(camera_image, self.lower, self.upper)
-		maskOpen=cv2.morphologyEx(mask,cv2.MORPH_OPEN,self.kernelOpen)
-		maskClose=cv2.morphologyEx(maskOpen,cv2.MORPH_CLOSE,self.kernelClose)
-		im2, self.contours, hierarchy = cv2.findContours(maskClose, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-		one_color_image = cv2.bitwise_and(camera_image, camera_image, mask = maskClose)
+		#maskOpen=cv2.morphologyEx(mask,cv2.MORPH_OPEN,self.kernelOpen)
+		#maskClose=cv2.morphologyEx(maskOpen,cv2.MORPH_CLOSE,self.kernelClose)
+		im2, self.contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+		one_color_image = cv2.bitwise_and(camera_image, camera_image, mask = mask)
 		return one_color_image
 
 
@@ -52,11 +52,11 @@ class image_receiver:
 			cv_image = self.bridge.imgmsg_to_cv2(data,"bgr8")
 		except CvBridgeError as e:
 			print (e);
-
+		#output_image = cv2.cvtColor(cv_image, cv2.COLOR_BGR2HSV)
 	   	output_image = self.color_detect(cv_image)
 		for i in self.contours:
 			(x,y),radius = cv2.minEnclosingCircle(i)
-			if radius < 60:
+			if radius < 20:
 
 				center = (int(x),int(y))
 				radius = int(radius)
@@ -79,7 +79,7 @@ class image_receiver:
 
 
 def main(args):
-	ic = image_receiver(1)
+	ic = image_receiver(0)
 	rospy.init_node('image_receiver', anonymous=True)
 	try:
 		rospy.spin()

@@ -19,9 +19,9 @@ class controller:
 	
 	def __init__(self):
 
-		self.roll_controll = PID(1,0,5)
+		self.roll_controll = PID(1,0,2)
 		self.altitude_control = PID(1,0,0)
-		self.pitch_control = PID(0.5,0,0)
+		self.pitch_control = PID(0.1,0,0)
 		self.command = Twist()
 
 		self.state_altitude = 0
@@ -99,7 +99,7 @@ class controller:
 		state = int(data.w)
 
 		if state == 2:
-			self.roll_controll.setConstants(0.5,0,0)
+			self.roll_controll.setConstants(0.1,0,0)
 		
 
 		if ((state == 2) and (self.state_altitude == 0) and (self.status != 2)):
