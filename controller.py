@@ -22,6 +22,7 @@ class controller:
 		self.roll_controll = PID(1,0,2)
 		self.altitude_control = PID(1,0,0)
 		self.pitch_control = PID(0.1,0,0)
+		self.yaw_control = PID(1,0,1)
 		self.command = Twist()
 
 		self.state_altitude = 0
@@ -77,18 +78,21 @@ class controller:
 			self.roll_controll.reset()
 			self.altitude_control.reset()
 			self.pitch_control.reset()
+			self.yaw_control.reset()
 			self.takeoff_time = time.time()
 			self.SendTakeoff()
 		elif data.data == 2 :
 			self.roll_controll.reset()
 			self.altitude_control.reset()
 			self.pitch_control.reset()
+			self.yaw_control.reset()
 			self.takeoff_time = time.time()
 			self.SendLand()
 		elif data.data == 3:
 			self.roll_controll.reset()
 			self.altitude_control.reset()
 			self.pitch_control.reset()
+			self.yaw_control.reset()
 			self.SendEmergency()
 
 
@@ -112,6 +116,7 @@ class controller:
 
 		if x == 0:
 			self.roll_controll.last_error = 0
+			self.yaw_control.last_error = 0
 		if y == 0:
 			self.altitude_control.last_error = 0
 			self.pitch_control.last_error = 0
@@ -122,18 +127,24 @@ class controller:
 		roll_output = self.roll_controll.update(x)
 		altitude_output = self.altitude_control.update(y)
 		pitch_output = self.pitch_control.update(y)
+		yaw_output = self.yaw_control.update(x)
 		
 		if state == 0:
 			self.SetCommand(roll_output,0,0,altitude_output)
-		else:
+		elif state == 2:
 			self.SetCommand(roll_output,pitch_output,0,0)
+		else:
+			self.SetCommand(0,1,yaw_output,0)
 
-		self.SendCommand()
+		if (time.time() - self.takeoff_time > 5):
+			self.SendCommand()
 		
 		if state == 0:
 			self.pub_test.publish(str(roll_output) + "  " + str(altitude_output) + "  " + str(d))
-		else:
+		elif state == 2:
 			self.pub_test.publish(str(roll_output) + "  " + str(pitch_output) + "  " + str(d))
+		else:
+			self.pub_test.publish(str(yaw_output))
 
 
 
