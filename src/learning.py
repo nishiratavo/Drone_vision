@@ -106,7 +106,7 @@ class image_receiver:
 
 
 def main(args):
-	ic = image_receiver(3)
+	ic = image_receiver(0)
 	rospy.init_node('image_receiver', anonymous=True)
 	try:
 		rospy.spin()
