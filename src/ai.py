@@ -33,7 +33,7 @@ __author__ = 'Bitcraze AB'
 __all__ = ['AttitudeIndicator']
 
 import sys
-from PySide import QtGui, QtCore
+from PySide import QtGui, QtCore #remove
 
 
 class AttitudeIndicator(QtGui.QWidget):
