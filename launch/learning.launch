@@ -13,8 +13,8 @@
 		<param name="navdata_demo" value="1" />
 
 	</node>
-	<node name="image_receiver" pkg="learning" type="learning.py" required="true"/>
-	<node name="controller" pkg="learning" type="controller.py" required="true"/>
-	<node name="gui" pkg="learning" type="gui.py" required="true"/>
+	<node name="image_receiver" pkg="Drone_vision" type="learning.py" required="true"/>
+	<node name="controller" pkg="Drone_vision" type="controller.py" required="true"/>
+	<node name="gui" pkg="Drone_vision" type="gui.py" required="true"/>
 
 </launch>

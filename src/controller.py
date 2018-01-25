@@ -2,7 +2,7 @@
 
 import time
 import roslib
-roslib.load_manifest('learning')
+roslib.load_manifest('Drone_vision')
 import sys
 import rospy
 from std_msgs.msg import String, Int32

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import roslib
-roslib.load_manifest('learning')
+roslib.load_manifest('Drone_vision')
 import sys
 import rospy
 import numpy as np
