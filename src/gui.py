@@ -76,7 +76,7 @@ class gui(QtGui.QWidget):
 		vbox.addWidget(self.wid)
 		vbox.addLayout(textbox) 
 		self.setLayout(vbox)
-		self.setGeometry(50, 50, 710, 510)
+		self.setGeometry(50, 50, 710, 250)
 		self.setWindowTitle('Attitude Indicator')
 		self.show()
 

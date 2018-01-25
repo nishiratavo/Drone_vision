@@ -22,7 +22,7 @@ class controller:
 		self.roll_controll = PID(1,0,2)
 		self.altitude_control = PID(1,0,0)
 		self.pitch_control = PID(0.1,0,0)
-		self.yaw_control = PID(1,0,1)
+		self.yaw_control = PID(2,0,0)
 		self.command = Twist()
 
 		self.state_altitude = 0
@@ -134,7 +134,7 @@ class controller:
 		elif state == 2:
 			self.SetCommand(roll_output,pitch_output,0,0)
 		else:
-			self.SetCommand(0,1,yaw_output,0)
+			self.SetCommand(0,0.5,yaw_output,0)
 
 		if (time.time() - self.takeoff_time > 5):
 			self.SendCommand()

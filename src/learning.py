@@ -17,6 +17,7 @@ from subprocess import call
 class image_receiver:
 
 	def __init__(self, camera = 0) :
+		self.best_x = 0
 		self.camera = camera
 		self.bridge = CvBridge()
 		#self.lower = np.array([0, 0, 70], dtype = "uint8")
@@ -54,8 +55,10 @@ class image_receiver:
 			if y < best_y:
 				best_y = y
 				best_x = x
+
+		self.best_x = (best_x - width/2)
 		cv2.circle(one_color_image, (int(best_x), int(best_y)), 5,(0,255,0),-1)
-		self.image_pos_pub.publish(best_x-width/2,0,0,self.camera)
+		self.image_pos_pub.publish(self.best_x,0,0,self.camera)
 		#cv2.drawContours(one_color_im)age, contours, -1, (0,255,0), 3)
 		cv2.imshow("Image window", np.hstack([one_color_image,crop_img]))
 		cv2.waitKey(3)
