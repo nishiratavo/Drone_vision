@@ -92,6 +92,7 @@ class image_receiver:
 					height, width = output_image.shape[:2]
 					x = int(x - width/2)
 					y = int(y - height/2)
+					radius = int(2 - radius)
 					self.image_pos_pub.publish(x,y,radius,self.camera)
 					break
 				else :

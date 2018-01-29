@@ -21,10 +21,11 @@ class controller:
 
 		self.roll_controll = PID(1,0,2)
 		self.altitude_control = PID(1,0,0)
-		self.pitch_control = PID(0.1,0,0)
+		self.pitch_control = PID(1,0,0)
 		self.yaw_control = PID(2,0,0)
 		self.command = Twist()
 
+		self.altitude = 0
 		self.state_altitude = 0
 		self.status = -1
 		self.takeoff_time = 0
@@ -43,6 +44,7 @@ class controller:
 	def ReceiveNavdata(self,navdata):
 		# gets navdata state	
 		self.status = navdata.state
+		self.altitude = navdata.altd
 
 
 	def SendTakeoff(self):
@@ -99,7 +101,7 @@ class controller:
 	def callback(self, data):
 		x = int(-data.x)/300.0
 		y = int(-data.y)/180.0
-		d = int(data.z)
+		d = int(data.z)/5.0
 		state = int(data.w)
 
 		if state == 2:
@@ -120,27 +122,34 @@ class controller:
 		if y == 0:
 			self.altitude_control.last_error = 0
 			self.pitch_control.last_error = 0
+		if d == 0:
+			self.pitch_control.last_error = 0
 
-		while (time.time() - self.takeoff_time < 5):
+
+
+		while (time.time() - self.takeoff_time < 10):
 			pass
 
 		roll_output = self.roll_controll.update(x)
 		altitude_output = self.altitude_control.update(y)
-		pitch_output = self.pitch_control.update(y)
+		if state == 0:
+			pitch_output = self.pitch_control.update(d)
+		else:
+			pitch_output = self.pitch_control.update(y) # change to y in bottom camera mode
 		yaw_output = self.yaw_control.update(x)
 		
 		if state == 0:
-			self.SetCommand(roll_output,0,0,altitude_output)
+			self.SetCommand(roll_output,pitch_output,0,altitude_output)
 		elif state == 2:
 			self.SetCommand(roll_output,pitch_output,0,0)
 		else:
 			self.SetCommand(0,0.5,yaw_output,0)
 
-		if (time.time() - self.takeoff_time > 5):
+		if (time.time() - self.takeoff_time > 10):
 			self.SendCommand()
 		
 		if state == 0:
-			self.pub_test.publish(str(roll_output) + "  " + str(altitude_output) + "  " + str(d))
+			self.pub_test.publish(str(roll_output) + "  " + str(altitude_output) + "  " + str(pitch_output) + " " + str(d))
 		elif state == 2:
 			self.pub_test.publish(str(roll_output) + "  " + str(pitch_output) + "  " + str(d))
 		else:
