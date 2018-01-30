@@ -92,7 +92,6 @@ class image_receiver:
 					height, width = output_image.shape[:2]
 					x = int(x - width/2)
 					y = int(y - height/2)
-					radius = int(2 - radius)
 					self.image_pos_pub.publish(x,y,radius,self.camera)
 					break
 				else :
@@ -100,6 +99,10 @@ class image_receiver:
 			
 			if self.contours == []:
 				self.image_pos_pub.publish(0,0,0,self.camera)
+
+
+			output_image = cv2.resize(output_image, (0,0), fx = 0.7, fy = 0.7)
+			cv_image = cv2.resize(cv_image, (0,0), fx = 0.7, fy = 0.7)
 
 			cv2.imshow("Image window", np.hstack([output_image, cv_image]))
 			cv2.waitKey(3)

@@ -29,6 +29,17 @@ class gui(QtGui.QWidget):
 	def __init__(self):
 
 		super(gui, self).__init__()
+		#self.wid = 0
+		#self.init_gui()
+		'''vbox = QtGui.QVBoxLayout()
+		self.wid = AttitudeIndicator()
+		vbox.addWidget(self.wid)
+		hbox = QtGui.QHBoxLayout()
+		hbox.addLayout(vbox)
+		self.setLayout(hbox)
+		self.setGeometry(50, 50, 510, 510)
+		self.setWindowTitle('Attitude Indicator')
+		self.show()'''
 		vbox = QtGui.QHBoxLayout()
 		textbox = QtGui.QVBoxLayout()
 		self.data1 = QtGui.QLabel()
