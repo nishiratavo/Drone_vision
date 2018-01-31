@@ -14,15 +14,16 @@ from std_msgs.msg import Empty
 from geometry_msgs.msg import Twist
 from geometry_msgs.msg import Quaternion
 import numpy as np
+from math import *
 
 class controller:
 	
 	def __init__(self):
 
-		self.roll_controll = PID(1,0,2)
+		self.roll_controll = PID(4,0.01,10)
 		self.altitude_control = PID(1,0,0)
 		self.pitch_control = PID(0.1,0,0)
-		self.yaw_control = PID(2,0,0)
+		self.yaw_control = PID(1,0,0)
 		self.command = Twist()
 
 		self.state_altitude = 0
@@ -43,6 +44,8 @@ class controller:
 	def ReceiveNavdata(self,navdata):
 		# gets navdata state	
 		self.status = navdata.state
+		self.rotX = navdata.rotX*(pi/180)
+
 
 
 	def SendTakeoff(self):
@@ -98,16 +101,23 @@ class controller:
 
 
 	def callback(self, data):
-		x = int(-data.x)/300.0
+		x = int(-data.x)
 		y = int(-data.y)/180.0
-		d = int(data.z)
+		d = -data.z
 		state = int(data.w)
+		offset = int(640*tan(self.rotX)/(tan(0.52 + self.rotX) + tan(0.52 - self.rotX)))
+		if int(data.y) == 0:
+			offset = 0
+		else:
+			offset = int(640*tan(self.rotX)/(tan(0.52 + self.rotX) + tan(0.52 - self.rotX)))
 
+		x = (x + offset)/300.0
+		#x = -data.x/300.0
 		if state == 2:
 			self.roll_controll.setConstants(0.1,0,0)
 		
 
-		if (((state == 2) or (state == 4)) and (self.state_altitude == 0) and (self.status != 2)):
+		if ((state == 2) and (self.state_altitude == 0) and (self.status != 2)):
 			self.SetCommand(0,0,0,1)
 			self.SendCommand()
 			time.sleep(5)
@@ -123,19 +133,22 @@ class controller:
 			self.pitch_control.last_error = 0
 
 		while (time.time() - self.takeoff_time < 8):
-			pass
+			self.roll_controll.reset()
 
 		roll_output = self.roll_controll.update(x)
 		altitude_output = self.altitude_control.update(y)
 		pitch_output = self.pitch_control.update(y)
-		yaw_output = self.yaw_control.update(x)
-		
+		if state == 2:
+			yaw_output = self.yaw_control.update(x) 
+		elif state == 4:
+			yaw_output = self.yaw_control.update(d)
+
 		if state == 0:
 			self.SetCommand(roll_output,0,0,altitude_output)
 		elif state == 2:
 			self.SetCommand(roll_output,pitch_output,0,0)
 		else:
-			self.SetCommand(0,0.1,yaw_output,0)
+			self.SetCommand(roll_output,0.05,yaw_output,0)
 
 		if (time.time() - self.takeoff_time > 8):
 			self.SendCommand()
@@ -145,7 +158,8 @@ class controller:
 		elif state == 2:
 			self.pub_test.publish(str(roll_output) + "  " + str(pitch_output) + "  " + str(d))
 		else:
-			self.pub_test.publish(str(yaw_output))
+			#self.pub_test.publish(str(yaw_output) + " " + str(d))
+			self.pub_test.publish(str(offset) + " " + str(x))
 
 
 
