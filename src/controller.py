@@ -20,10 +20,10 @@ class controller:
 	
 	def __init__(self):
 
-		self.roll_controll = PID(4,0.01,10)
+		self.roll_controll = PID(10,0.1,25)
 		self.altitude_control = PID(1,0,0)
 		self.pitch_control = PID(0.1,0,0)
-		self.yaw_control = PID(1,0,0)
+		self.yaw_control = PID(1,0,0.1)
 		self.command = Twist()
 
 		self.state_altitude = 0
