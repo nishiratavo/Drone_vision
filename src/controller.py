@@ -20,11 +20,13 @@ class controller:
 	
 	def __init__(self):
 
-		self.roll_controll = PID(1,0,10)
+		self.roll_control = PID(1,0,10)
 		self.altitude_control = PID(1,0,0)
 		self.pitch_control = PID(0.1,0,0)
 		self.yaw_control = PID(1,0,0.1)
 		self.command = Twist()
+
+		self.first_time = 0
 
 		self.state_altitude = 0
 		self.status = -1
@@ -78,50 +80,74 @@ class controller:
 
 	def keyPressEvent(self,data):
 		if data.data  == 1 :
-			self.roll_controll.reset()
+			self.roll_control.reset()
 			self.altitude_control.reset()
 			self.pitch_control.reset()
 			self.yaw_control.reset()
 			self.takeoff_time = time.time()
 			self.SendTakeoff()
+			self.state_altitude = 0
 		elif data.data == 2 :
-			self.roll_controll.reset()
+			self.roll_control.reset()
 			self.altitude_control.reset()
 			self.pitch_control.reset()
 			self.yaw_control.reset()
 			self.takeoff_time = time.time()
-			self.state_altitude = 0
+			#self.state_altitude = 0
 			self.SetCommand(0,0,0,0)
 			self.SendCommand()
 			self.SendLand()
+			self.state_altitude = 0
 		elif data.data == 3:
-			self.roll_controll.reset()
+			self.roll_control.reset()
 			self.altitude_control.reset()
 			self.pitch_control.reset()
 			self.yaw_control.reset()
 			self.SendEmergency()
 
 
-	def callback(self, data):
-		x = int(-data.x)
+
+	def pointer_follower_front(self, data):
+		if self.first_time == 0:
+			self.roll_control.setConstants(1,0,2)
+			self.altitude_control.setConstants(1,0,0)
+			self.first_time = 1
+
+		x = int(-data.x)/300.0
 		y = int(-data.y)/180.0
-		d = -data.z
-		state = int(data.w)
-		offset = int(640*tan(self.rotX)/(tan(0.52 + self.rotX) + tan(0.52 - self.rotX)))
 
-		if int(data.y) != 0:
-			x = (x + offset)/300.0
-			pitch_vel = 0.1
-		else:
-			pitch_vel = 0
-			x /= 300.0 
-			pitch_vel = 0
+		if x == 0:
+			self.roll_control.last_error = 0
+		if y == 0:
+			self.pitch_control.last_error = 0
 
-		if state == 2:
-			self.roll_controll.setConstants(0.1,0,0)
+		while (time.time() - self.takeoff_time < 8):
+			pass
+
+		roll_output = self.roll_control.update(x)
+		altitude_output = self.altitude_control.update(y)
 		
+		self.SetCommand(roll_output,0,0,altitude_output)
 
-		if ((state == 2) and (self.state_altitude == 0) and (self.status != 2)):
+		if (time.time() - self.takeoff_time > 8):
+			self.SendCommand()
+		
+		self.pub_test.publish(str(roll_output) + "  " + str(altitude_output))
+
+
+	def pointer_follower_bottom(self,data):
+		if self.first_time == 0:
+			self.roll_control.setConstants(0.1,0,0)
+			self.pitch_control.setConstants(0.1,0,0)
+			self.first_time = 1
+
+		x = int(-data.x)/300.0
+		y = int(-data.y)/180.0
+		state = int(data.w)
+
+
+		if ((self.state_altitude == 0) and (self.status != 2)):
+			time.sleep(5)
 			self.SetCommand(0,0,0,1)
 			self.SendCommand()
 			time.sleep(5)
@@ -130,40 +156,72 @@ class controller:
 			self.state_altitude = 1
 
 		if x == 0:
-			x = self.roll_controll.last_error
-			self.yaw_control.last_error = 0
+			self.roll_control.last_error = 0
 		if y == 0:
-			self.altitude_control.last_error = 0
 			self.pitch_control.last_error = 0
 
 		while (time.time() - self.takeoff_time < 8):
-			self.roll_controll.reset()
+			pass
 
-		roll_output = self.roll_controll.update(x)
-		altitude_output = self.altitude_control.update(y)
+		roll_output = self.roll_control.update(x)
 		pitch_output = self.pitch_control.update(y)
-
-		if state == 2:
-			yaw_output = self.yaw_control.update(x) 
-		elif state == 4:
-			yaw_output = self.yaw_control.update(d)
-
-		if state == 0:
-			self.SetCommand(roll_output,0,0,altitude_output)
-		elif state == 2:
-			self.SetCommand(roll_output,pitch_output,0,0)
-		else:
-			self.SetCommand(roll_output,pitch_vel,yaw_output,0)
+		
+		self.SetCommand(roll_output,pitch_output,0,0)
 
 		if (time.time() - self.takeoff_time > 8):
 			self.SendCommand()
 		
-		if state == 0:
-			self.pub_test.publish(str(roll_output) + "  " + str(altitude_output) + "  " + str(d))
-		elif state == 2:
-			self.pub_test.publish(str(roll_output) + "  " + str(pitch_output) + "  " + str(d))
+		self.pub_test.publish(str(roll_output) + "  " + str(pitch_output))
+
+
+
+	def line_follower(self, data):
+		if self.first_time == 0:
+			self.roll_control.setConstants(1,0,10)
+			self.yaw_control.setConstants(1,0,0.1)
+			self.first_time = 1
+
+		x = -data.x
+		detecting = int(data.y)
+		angle = -data.z
+
+		offset = int(640*tan(self.rotX)/(tan(0.52 + self.rotX) + tan(0.52 - self.rotX)))
+
+		if detecting != 0:
+			x = (x + offset)/300.0
+			pitch_vel = 0.1
 		else:
-			self.pub_test.publish(str(roll_output) + " " + str(pitch_vel) + " " + str(yaw_output))
+			pitch_vel = 0
+			x /= 300.0 
+
+		if x == 0:
+			x = self.roll_control.last_error
+			self.yaw_control.last_error = 0
+
+		while (time.time() - self.takeoff_time < 8):
+			self.roll_control.reset()
+
+		roll_output = self.roll_control.update(x)	
+		yaw_output = self.yaw_control.update(angle)
+
+		self.SetCommand(roll_output,pitch_vel,yaw_output,0)
+
+		if (time.time() - self.takeoff_time > 8):
+			self.SendCommand()
+		
+		self.pub_test.publish(str(roll_output) + " " + str(pitch_vel) + " " + str(yaw_output))
+
+
+	def callback(self, data):
+		if data.w == 0:
+			self.pointer_follower_front(data)
+
+		elif data.w == 2:
+			self.pointer_follower_bottom(data)
+
+		elif data.w == 4:
+			self.line_follower(data)
+
 
 
 

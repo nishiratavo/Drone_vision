@@ -36,8 +36,6 @@ class image_receiver:
 
 	def color_detect(self, camera_image):
 		mask = cv2.inRange(camera_image, self.lower, self.upper)
-		#maskOpen=cv2.morphologyEx(mask,cv2.MORPH_OPEN,self.kernelOpen)
-		#maskClose=cv2.morphologyEx(maskOpen,cv2.MORPH_CLOSE,self.kernelClose)
 		im2, self.contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 		one_color_image = cv2.bitwise_and(camera_image, camera_image, mask = mask)
 		return one_color_image
@@ -70,7 +68,6 @@ class image_receiver:
 		cv2.circle(one_color_image, (int(best_x), int(best_y)), 5,(0,255,0),-1)
 		cv2.circle(one_color_image, (int(worst_x), int(worst_y)), 5,(0,255,0),-1)
 		self.image_pos_pub.publish(self.worst_x,detecting,atan(ang),self.camera)
-		#cv2.drawContours(one_color_im)age, contours, -1, (0,255,0), 3)
 		cv2.imshow("Image window", np.hstack([one_color_image,crop_img]))
 		cv2.waitKey(3)
 
@@ -124,7 +121,7 @@ class image_receiver:
 
 
 def main(args):
-	ic = image_receiver(3)
+	ic = image_receiver(1)
 	rospy.init_node('image_receiver', anonymous=True)
 	try:
 		rospy.spin()
