@@ -16,11 +16,11 @@ from geometry_msgs.msg import Quaternion
 import numpy as np
 from math import *
 
-class controller:
+class controller: 
 	
 	def __init__(self):
 
-		self.roll_controll = PID(10,0.1,25)
+		self.roll_controll = PID(1,0,10)
 		self.altitude_control = PID(1,0,0)
 		self.pitch_control = PID(0.1,0,0)
 		self.yaw_control = PID(1,0,0.1)
@@ -91,6 +91,8 @@ class controller:
 			self.yaw_control.reset()
 			self.takeoff_time = time.time()
 			self.state_altitude = 0
+			self.SetCommand(0,0,0,0)
+			self.SendCommand()
 			self.SendLand()
 		elif data.data == 3:
 			self.roll_controll.reset()
@@ -106,13 +108,15 @@ class controller:
 		d = -data.z
 		state = int(data.w)
 		offset = int(640*tan(self.rotX)/(tan(0.52 + self.rotX) + tan(0.52 - self.rotX)))
-		if int(data.y) == 0:
-			offset = 0
-		else:
-			offset = int(640*tan(self.rotX)/(tan(0.52 + self.rotX) + tan(0.52 - self.rotX)))
 
-		x = (x + offset)/300.0
-		#x = -data.x/300.0
+		if int(data.y) != 0:
+			x = (x + offset)/300.0
+			pitch_vel = 0.1
+		else:
+			pitch_vel = 0
+			x /= 300.0 
+			pitch_vel = 0
+
 		if state == 2:
 			self.roll_controll.setConstants(0.1,0,0)
 		
@@ -126,7 +130,7 @@ class controller:
 			self.state_altitude = 1
 
 		if x == 0:
-			self.roll_controll.last_error = 0
+			x = self.roll_controll.last_error
 			self.yaw_control.last_error = 0
 		if y == 0:
 			self.altitude_control.last_error = 0
@@ -138,6 +142,7 @@ class controller:
 		roll_output = self.roll_controll.update(x)
 		altitude_output = self.altitude_control.update(y)
 		pitch_output = self.pitch_control.update(y)
+
 		if state == 2:
 			yaw_output = self.yaw_control.update(x) 
 		elif state == 4:
@@ -148,7 +153,7 @@ class controller:
 		elif state == 2:
 			self.SetCommand(roll_output,pitch_output,0,0)
 		else:
-			self.SetCommand(roll_output,0.05,yaw_output,0)
+			self.SetCommand(roll_output,pitch_vel,yaw_output,0)
 
 		if (time.time() - self.takeoff_time > 8):
 			self.SendCommand()
@@ -158,8 +163,7 @@ class controller:
 		elif state == 2:
 			self.pub_test.publish(str(roll_output) + "  " + str(pitch_output) + "  " + str(d))
 		else:
-			#self.pub_test.publish(str(yaw_output) + " " + str(d))
-			self.pub_test.publish(str(offset) + " " + str(x))
+			self.pub_test.publish(str(roll_output) + " " + str(pitch_vel) + " " + str(yaw_output))
 
 
 

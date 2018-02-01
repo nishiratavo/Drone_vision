@@ -45,7 +45,7 @@ class image_receiver:
 
 	def follow_line(self, camera_image):
 		height, width = camera_image.shape[:2]
-		crop_img = camera_image[int(height/2 - 70):int(height/2 + 70), 0:width]
+		crop_img = camera_image[0:150, 0:width]
 		mask = cv2.inRange(crop_img, self.lower, self.upper)
 		im2, contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 		one_color_image = cv2.bitwise_and(crop_img, crop_img, mask = mask)
@@ -66,10 +66,10 @@ class image_receiver:
 			ang = float(-((best_x - worst_x)/(best_y - worst_y)))
 		else :
 			ang = 0
-		self.best_x = (best_x - width/2)
+		self.worst_x = (worst_x - width/2)
 		cv2.circle(one_color_image, (int(best_x), int(best_y)), 5,(0,255,0),-1)
 		cv2.circle(one_color_image, (int(worst_x), int(worst_y)), 5,(0,255,0),-1)
-		self.image_pos_pub.publish(self.best_x,detecting,atan(ang),self.camera)
+		self.image_pos_pub.publish(self.worst_x,detecting,atan(ang),self.camera)
 		#cv2.drawContours(one_color_im)age, contours, -1, (0,255,0), 3)
 		cv2.imshow("Image window", np.hstack([one_color_image,crop_img]))
 		cv2.waitKey(3)
