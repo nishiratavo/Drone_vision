@@ -11,7 +11,7 @@ The foundation of the project is based on [ROS(Robot Operating System)](http://w
 In the ROS environment there is one thing called packages, you can think of them as libraries, that make one's life easier. This project uses some of them, a interesting one being used is the [ardrone_autonomy package](https://github.com/AutonomyLab/ardrone_autonomy). It manages the AR.Drone SDK, making the control of the drone by software to be very easy.
 
 ### Python(OpenCV)
-Since this is a camera based tracking project it needs to do image processing, which can be quite easy with [OpenCV](https://opencv.org/). The image processing algorithm it is using right now is based on a color tracking approach. It creates a mask based on a RGB treshold then applies it on the original image, as a result we have only the green dot. As a final step it recognizes the green dot as a circle and sends the x,y position to the control algorithm.
+Since this is a camera based tracking project it needs to do image processing, which can be quite easy with [OpenCV](https://opencv.org/). The image processing algorithm it is using right now is based on a color tracking approach. It creates a mask based on a RGB threshold then applies it on the original image, as a result we have only the green dot. As a final step it recognizes the green dot as a circle and sends the x,y position to the control algorithm.
 
 ### Control(PID)
 For the tracking it uses a simple [PID controller](https://en.wikipedia.org/wiki/PID_controller). The constants are optimized for the AR.Drone we used, so you may need to change them (just one line of code in controller.py).
@@ -22,7 +22,7 @@ For the tracking it uses a simple [PID controller](https://en.wikipedia.org/wiki
 The things you need to run the project and how to install them. The project was developed and tested in **Ubuntu 16.04 LTS**, if your operating system is different it may need some workarounds.
 
 ### ROS Kinetic
-To install ROS you just need to follow the instructions in the [ROS installation page](http://wiki.ros.org/kinetic/Installation/Ubuntu).
+To install ROS Kinetic you just need to follow the instructions in the [ROS installation page](http://wiki.ros.org/kinetic/Installation/Ubuntu).
 
 ### ardrone_autonomy package
 ```
@@ -61,7 +61,7 @@ catkin_make
 
 ## How to use
 First turn on the AR.Drone and connect to it via wifi.
-Then open the terminal navigate to your catkin workspace.
+Then open the terminal and navigate to your catkin workspace.
 ```
 cd ~/catkin_ws
 ```
