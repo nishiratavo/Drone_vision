@@ -19,85 +19,69 @@ For the tracking it uses a simple [PID controller](https://en.wikipedia.org/wiki
 
 ## Prerequisites
 
-The things you need to run the project and how to install them. The project was developed and tested in ##Ubuntu 16.04 LTS##, if your operating system is different it may need some workarounds.
+The things you need to run the project and how to install them. The project was developed and tested in **Ubuntu 16.04 LTS**, if your operating system is different it may need some workarounds.
 
+### ROS Kinetic
+To install ROS you just need to follow the instructions in the [ROS installation page](http://wiki.ros.org/kinetic/Installation/Ubuntu).
 
+### ardrone_autonomy package
 ```
-ROS
-Python 2.7
-OpenCV with Python bindings
-```
-
-### Installing
-
-#### ROS
-
-
-
-Say what the step will be
-
-```
-Give the example
+sudo apt-get install ros-kinetic-ardrone-autonomy
 ```
 
-And repeat
-
+### cv_bridge
 ```
-until finished
-```
-
-End with an example of getting some data out of the system or using it for a little demo
-
-## Running the tests
-
-Explain how to run the automated tests for this system
-
-### Break down into end to end tests
-
-Explain what these tests test and why
-
-```
-Give an example
+sudo apt-get install ros-kinetic-cv-bridge
 ```
 
-### And coding style tests
+### Python 2.7
+If you are using Ubuntu 16.04 Python comes pre-installed.
 
-Explain what these tests test and why
+### OpenCV 3.4
+To install OpenCV you just need to follow the instructions in this [page](https://www.pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/).
 
+## Install
+To install this package run these commands in the terminal.
+
+Navigate to your catkin workspace. If you do not have a catkin workspace, follow this [tutorial](http://wiki.ros.org/catkin/Tutorials/create_a_workspace).
 ```
-Give an example
+cd ~/catkin_ws/src
 ```
 
-## Deployment
+Clone this repository
+```
+git clone https://github.com/nishiratavo/Drone_vision.git
+```
 
-Add additional notes about how to deploy this on a live system
+Once it is completed
+```
+cd ~/catkin_ws
+catkin_make
+```
 
-## Built With
+## How to use
+First turn on the AR.Drone and connect to it via wifi.
+Then open the terminal navigate to your catkin workspace.
+```
+cd ~/catkin_ws
+```
+Initialize the program with roslaunch.
+```
+roslaunch Drone_vision Drone_vision.launch
+``` 
+Wait for everything to open and then send the takeoff command.
+```
+rostopic pub -1 /keyboard std_msgs/Int32 1
+```
+Now you can use the green pointer and the drone will follow it.
 
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
+To land the drone send the land command.
+```
+rostopic pub -1 /keyboards std_msgs/Int32 2
+```
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
+* **Gustavo Nishihara** - [Github](https://github.com/nishiratavo)
+* **Igor Novais**  - [Github](https://github.com/igor98)
 
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details
-
-## Acknowledgments
-
-* Hat tip to anyone who's code was used
-* Inspiration
-* etc
