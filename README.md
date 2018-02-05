@@ -69,7 +69,9 @@ Initialize the program with roslaunch.
 ```
 roslaunch Drone_vision Drone_vision.launch
 ``` 
-Wait for everything to open and then send the takeoff command.
+Wait for everything to open and then select the mode just by writing the number in the terminal window. (0 = green pointer with front camera, 1 = green pointer with bottom camera, 2 = led strip follower).
+
+Wait for the camera's image to open and then send the takeoff command in a new terminal.
 ```
 rostopic pub -1 /keyboard std_msgs/Int32 1
 ```
@@ -78,6 +80,11 @@ Now you can use the green pointer and the drone will follow it.
 To land the drone send the land command.
 ```
 rostopic pub -1 /keyboards std_msgs/Int32 2
+```
+
+In case of emergency send the emergency command.
+```
+rostopic pub -1 /keyboards std_msgs/Int32 3
 ```
 
 ## Authors

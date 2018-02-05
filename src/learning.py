@@ -121,8 +121,12 @@ class image_receiver:
 
 
 def main(args):
-	ic = image_receiver(0)
+	mode = input("mode: ")
+	if mode == 2:
+		mode = 3
 	rospy.init_node('image_receiver', anonymous=True)
+	ic = image_receiver(mode)
+	#rospy.init_node('image_receiver', anonymous=True)
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:
