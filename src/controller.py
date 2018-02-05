@@ -16,6 +16,7 @@ from geometry_msgs.msg import Quaternion
 import numpy as np
 from math import *
 
+
 class controller: 
 	
 	def __init__(self):
@@ -41,6 +42,7 @@ class controller:
 		self.pubReset   = rospy.Publisher('/ardrone/reset',Empty)
 		self.pubCommand = rospy.Publisher('/cmd_vel',Twist)
 		self.pub_test = rospy.Publisher('/pid_teste',String, queue_size=10)
+		self.pub_reset = rospy.Publisher("/position", Int32, queue_size=10)
 
 
 	def ReceiveNavdata(self,navdata):
@@ -212,6 +214,34 @@ class controller:
 		self.pub_test.publish(str(roll_output) + " " + str(pitch_vel) + " " + str(yaw_output))
 
 
+
+
+	def waypoint(self,data):
+		x = data.x
+		y = data.y
+		z = data.z
+
+
+		while (time.time() - self.takeoff_time < 8):
+			self.pub_reset.publish(1)
+
+		#roll_output = self.roll_control.update(x)
+		#pitch_output = self.pitch_control.update(y)
+		#altitude_output = self.altitude_control.update(z)
+		
+		self.SetCommand(x,y,0,z)
+
+		if (time.time() - self.takeoff_time > 8):
+			self.SendCommand()
+		
+		self.pub_test.publish(str(x) + "  " + str(y) + "  " + str(z))
+
+
+
+
+
+
+
 	def callback(self, data):
 		if data.w == 0:
 			self.pointer_follower_front(data)
@@ -221,6 +251,9 @@ class controller:
 
 		elif data.w == 4:
 			self.line_follower(data)
+
+		elif data.w == 5:
+			self.waypoint(data)
 
 
 

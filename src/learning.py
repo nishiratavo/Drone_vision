@@ -13,6 +13,7 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge, CvBridgeError
 from subprocess import call
 from math import *
+from waypoint import waypoint_mode
 
 
 class image_receiver:
@@ -81,7 +82,7 @@ class image_receiver:
 		if self.camera == 3:
 			call(["rosservice", "call", "ardrone/togglecam"])
 			self.camera = 4
-
+		
 		start = time.time()
 		try:
 			cv_image = self.bridge.imgmsg_to_cv2(data,"bgr8")
@@ -122,10 +123,16 @@ class image_receiver:
 
 def main(args):
 	mode = input("mode: ")
-	if mode == 2:
+	if mode == 3:
+		rospy.init_node('image_receiver', anonymous=True)
+		ic = waypoint_mode()
+	elif mode == 2:
 		mode = 3
-	rospy.init_node('image_receiver', anonymous=True)
-	ic = image_receiver(mode)
+		rospy.init_node('image_receiver', anonymous=True)
+		ic = image_receiver(mode)
+	else:
+		rospy.init_node('image_receiver', anonymous=True)
+		ic = image_receiver(mode)
 	#rospy.init_node('image_receiver', anonymous=True)
 	try:
 		rospy.spin()
