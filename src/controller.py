@@ -220,6 +220,7 @@ class controller:
 		x = data.x
 		y = data.y
 		z = data.z
+		
 
 
 		while (time.time() - self.takeoff_time < 8):
