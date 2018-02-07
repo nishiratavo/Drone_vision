@@ -52,8 +52,12 @@ class waypoint_mode:
 				self.offset = navdata.rotZ
 				self.yaw_offset = 1'''
 
-			if self.new_point == 1:
+			if (self.new_point == 1) and (z != 0) and (z > 0.6):
 				self.points[0][2] += z
+				if self.points[0][2] < 0.5:
+					self.Reset(1)
+					return None
+
 				self.new_point = 0
 
 			actual_time = time.time()
@@ -62,12 +66,10 @@ class waypoint_mode:
 			self.points[0][0] -= delta_x*dt
 			delta_y = (vy + self.last_vy)/2
 			self.points[0][1] -= delta_y*dt
-			#delta_z = (vz + self.last_vz)/2
 			error_z = self.points[0][2] - z
 			#error_yaw = -0.5*(navdata.rotZ - self.offset)
 			self.last_vx = vx
 			self.last_vy = vy
-			#self.last_vz = vz
 			self.last_time = actual_time
 			if abs(self.points[0][0]) < 0.1:
 				roll = 0
@@ -82,24 +84,18 @@ class waypoint_mode:
 				pitch = 0
 			else:
 				pitch = self.pitch_control.update(self.points[0][1])
-			'''elif self.points[0][1] > 0:
-				pitch = min(1, self.points[0][1])
-			else:
-				pitch = max(-1, self.points[0][1])'''
+		
 
-			#if abs(error_z) < 0.1:
-			#	altitude = 0
-			#else:
-			#	altitude = self.altitude_control.update(error_z)
-			'''elif self.points[0][2] > 0:
-				altitude = min(1, self.points[0][2])
+			if abs(error_z) < 0.1:
+				altitude = 0
 			else:
-				altitude = max(-1, self.points[0][2])'''
+				altitude = self.altitude_control.update(error_z)
+
 			#yaw = self.yaw_control.update(error_yaw)
-			self.error_pub.publish(roll,pitch,0,5)
+			self.error_pub.publish(roll,pitch,error_z,5)
 			#self.teste.publish(str(roll) + " " + str(pitch) + " " + str(altitude))
-			self.teste.publish(str(self.points[0][0]) + " " + str(self.points[0][1]) + " " + str(error_z) + " " + str(self.points[0][2]))
-			if ((abs(self.points[0][0]) < 0.1) and (abs(self.points[0][1]) < 0.1)): #and (abs(error_z) < 0.1)):
+			self.teste.publish(str(self.points[0][0]) + " " + str(self.points[0][1]) + " " + str(error_z) + " " + str(self.points[0][2]) + " " + str(z))
+			if ((abs(self.points[0][0]) < 0.1) and (abs(self.points[0][1]) < 0.1) and (abs(error_z) < 0.1)):
 				del self.points[0]
 				self.new_point = 1
 				self.error_pub.publish(0,0,0,5)

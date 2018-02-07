@@ -32,6 +32,12 @@ class controller:
 		self.state_altitude = 0
 		self.status = -1
 		self.takeoff_time = 0
+
+		self.vy = 0
+		self.last_vy = 0
+		self.last_time = 0
+		self.dy = 0
+
 		self.image_pos = rospy.Subscriber("data",Quaternion,self.callback)
 		self.subNavdata = rospy.Subscriber('/ardrone/navdata',Navdata,self.ReceiveNavdata)
 		self.receive_key = rospy.Subscriber('/keyboard', Int32, self.keyPressEvent) 
@@ -49,6 +55,7 @@ class controller:
 		# gets navdata state	
 		self.status = navdata.state
 		self.rotX = navdata.rotX*(pi/180)
+		self.vy = navdata.vx/1000.0
 
 
 
@@ -108,13 +115,22 @@ class controller:
 			self.SendEmergency()
 
 
+	def integration(self):
+		actual_time = time.time()
+		dt = actual_time - self.last_time
+		delta = (self.vy + self.last_vy)/2
+		self.dy += delta*dt
+		self.last_time = actual_time
+		self.last_vy = self.vy
+		return self.dy
+
 
 	def pointer_follower_front(self, data):
 		if self.first_time == 0:
 			self.roll_control.setConstants(1,0,2)
 			self.altitude_control.setConstants(1,0,0)
+			self.pitch_control.setConstants(0.1,0,0.01)
 			self.first_time = 1
-
 		x = int(-data.x)/300.0
 		y = int(-data.y)/180.0
 
@@ -124,17 +140,18 @@ class controller:
 			self.pitch_control.last_error = 0
 
 		while (time.time() - self.takeoff_time < 8):
-			pass
+			self.last_time = time.time()
 
 		roll_output = self.roll_control.update(x)
 		altitude_output = self.altitude_control.update(y)
+		pitch_output = self.pitch_control.update(-self.integration())
 		
-		self.SetCommand(roll_output,0,0,altitude_output)
+		self.SetCommand(roll_output,pitch_output,0,altitude_output)
 
 		if (time.time() - self.takeoff_time > 8):
 			self.SendCommand()
 		
-		self.pub_test.publish(str(roll_output) + "  " + str(altitude_output))
+		self.pub_test.publish(str(roll_output) + "  " + str(altitude_output) + " " + str(pitch_output) + " " + str(self.dy) )
 
 
 	def pointer_follower_bottom(self,data):
