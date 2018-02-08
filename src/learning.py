@@ -69,7 +69,10 @@ class image_receiver:
 		cv2.circle(one_color_image, (int(best_x), int(best_y)), 5,(0,255,0),-1)
 		cv2.circle(one_color_image, (int(worst_x), int(worst_y)), 5,(0,255,0),-1)
 		self.image_pos_pub.publish(self.worst_x,detecting,atan(ang),self.camera)
+		cv2.namedWindow("Image window")
 		cv2.imshow("Image window", np.hstack([one_color_image,crop_img]))
+		#cv2.namedWindow("Image window")
+		cv2.moveWindow("Image window", 100,100)
 		cv2.waitKey(3)
 
 

@@ -10,6 +10,7 @@ from drone_status import DroneStatus
 from PySide import QtCore, QtGui
 from PySide.QtGui import QApplication
 from PySide.QtCore import Signal
+from PySide.QtGui import  QDesktopWidget
 from ardrone_autonomy.msg import Navdata
 from std_msgs.msg import Empty
 from geometry_msgs.msg import Twist
@@ -42,6 +43,53 @@ class gui(QtGui.QWidget):
 		self.show()'''
 		vbox = QtGui.QHBoxLayout()
 		textbox = QtGui.QVBoxLayout()
+
+		commands = QtGui.QVBoxLayout()
+
+		modes = QtGui.QVBoxLayout()
+		mode_label = QtGui.QLabel()
+		mode_label.setText("                                       Modes")
+		modes.addWidget(mode_label)
+
+		mode_buttons = QtGui.QVBoxLayout()
+		mode_1 = QtGui.QPushButton("Front Camera")
+		mode_buttons.addWidget(mode_1)
+		mode_2 = QtGui.QPushButton("Bottom Camera")
+		mode_buttons.addWidget(mode_2)
+		mode_3 = QtGui.QPushButton("Line Follower")
+		mode_buttons.addWidget(mode_3)
+		mode_4 = QtGui.QPushButton("Waypoints")
+		mode_buttons.addWidget(mode_4)
+
+		waypoints_box = QtGui.QHBoxLayout()
+		#waypoints = QtGui.QLineEdit()
+		#waypoints.setText("0,0,0")
+		#waypoints.resize(50,20)
+		#waypoints_box.addWidget(waypoints)
+
+		send = QtGui.QPushButton("Send")
+		waypoints_box.addWidget(send)
+
+		blank_space = QtGui.QHBoxLayout()
+
+
+
+
+		buttons = QtGui.QVBoxLayout()
+		command_label = QtGui.QLabel()
+		command_label.setText("                                     Commands")
+		buttons.addWidget(command_label)
+
+		takeoff = QtGui.QPushButton("Take Off")
+		buttons.addWidget(takeoff)
+		land = QtGui.QPushButton("Land")
+		buttons.addWidget(land)
+		emergency = QtGui.QPushButton("Emergency")
+		buttons.addWidget(emergency)
+		finish = QtGui.QPushButton("Finish")
+		buttons.addWidget(finish)
+
+
 		self.data1 = QtGui.QLabel()
 		self.data2 = QtGui.QLabel()
 		self.data3 = QtGui.QLabel()
@@ -73,10 +121,16 @@ class gui(QtGui.QWidget):
 		textbox.addWidget(self.ay_label)
 		textbox.addWidget(self.az_label)
 		self.wid = AttitudeIndicator()
+		modes.addLayout(mode_buttons)
+		commands.addLayout(modes)
+		commands.addLayout(waypoints_box)
+		#commands.addLayout(mode_buttons)
+		commands.addLayout(buttons)
+		vbox.addLayout(commands)
 		vbox.addWidget(self.wid)
 		vbox.addLayout(textbox) 
 		self.setLayout(vbox)
-		self.setGeometry(50, 50, 710, 250)
+		self.setGeometry(50, 50, 900, 410)
 		self.setWindowTitle('Attitude Indicator')
 		self.show()
 
@@ -94,22 +148,22 @@ class gui(QtGui.QWidget):
 
 
 
-
-
-
-
 	def init_gui(self):
 
 		vbox = QtGui.QHBoxLayout()
 		textbox = QtGui.QVBoxLayout()
+		buttons = QtGui.QVBoxLayout()
+		button = QtGui.QLabel()
 		data1 = QtGui.QLabel()
 		data2 = QtGui.QLabel()
 		data3 = QtGui.QLabel()
 		data4 = QtGui.QLabel()
+		button.setText("teste")
 		data1.setText("Roll")
 		data2.setText("Pitch")
 		data3.setText("Yaw")
 		data4.setText("Altitude")
+		buttons.addWidget(button)
 		textbox.addWidget(data1)
 		textbox.addWidget(data2)
 		textbox.addWidget(data3)
@@ -120,6 +174,7 @@ class gui(QtGui.QWidget):
 		vbox.addWidget(self.wid)
 
 		vbox.addLayout(textbox) 
+		vbox.addLayout(buttons)
 		self.setLayout(vbox)
 		self.setGeometry(50, 50, 710, 510)
 		self.setWindowTitle('Attitude Indicator')
@@ -229,6 +284,8 @@ def main():
 	QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_X11InitThreads)  
 	app = QtGui.QApplication(sys.argv)    
 	ex = gui()
+	ex.move(50,462)
+	
 	#rospy.spin()
     
     # Keep checking for sigkill
