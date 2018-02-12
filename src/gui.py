@@ -19,7 +19,7 @@ from sensor_msgs.msg import Imu
 import numpy as np
 from ai import AttitudeIndicator
 import signal
-
+from subprocess import call
 
 class gui(QtGui.QWidget):
 
@@ -30,6 +30,8 @@ class gui(QtGui.QWidget):
 	def __init__(self):
 
 		super(gui, self).__init__()
+		self.mode = rospy.Publisher("/mode", Int32, queue_size = 10)
+		self.takeoff = rospy.Publisher("/takeoff", Int32, queue_size = 10)
 		#self.wid = 0
 		#self.init_gui()
 		'''vbox = QtGui.QVBoxLayout()
@@ -53,21 +55,28 @@ class gui(QtGui.QWidget):
 
 		mode_buttons = QtGui.QVBoxLayout()
 		mode_1 = QtGui.QPushButton("Front Camera")
+		mode_1.clicked.connect(self.mode_1_clicked)
 		mode_buttons.addWidget(mode_1)
 		mode_2 = QtGui.QPushButton("Bottom Camera")
+		mode_2.clicked.connect(self.mode_2_clicked)
 		mode_buttons.addWidget(mode_2)
 		mode_3 = QtGui.QPushButton("Line Follower")
+		mode_3.clicked.connect(self.mode_3_clicked)
 		mode_buttons.addWidget(mode_3)
 		mode_4 = QtGui.QPushButton("Waypoints")
+		mode_4.clicked.connect(self.mode_4_clicked)
 		mode_buttons.addWidget(mode_4)
 
 		waypoints_box = QtGui.QHBoxLayout()
-		#waypoints = QtGui.QLineEdit()
-		#waypoints.setText("0,0,0")
+		self.waypoints = QtGui.QLineEdit()
+		self.waypoints.setText("0,0,0")
+		self.waypoints.setFixedWidth(250)
 		#waypoints.resize(50,20)
-		#waypoints_box.addWidget(waypoints)
+		waypoints_box.addWidget(self.waypoints)
 
 		send = QtGui.QPushButton("Send")
+		send.clicked.connect(self.send_clicked)
+		send.setFixedWidth(50)
 		waypoints_box.addWidget(send)
 
 		blank_space = QtGui.QHBoxLayout()
@@ -81,12 +90,16 @@ class gui(QtGui.QWidget):
 		buttons.addWidget(command_label)
 
 		takeoff = QtGui.QPushButton("Take Off")
+		takeoff.clicked.connect(self.takeoff_clicked)
 		buttons.addWidget(takeoff)
 		land = QtGui.QPushButton("Land")
+		land.clicked.connect(self.land_clicked)
 		buttons.addWidget(land)
 		emergency = QtGui.QPushButton("Emergency")
+		emergency.clicked.connect(self.emergency_clicked)
 		buttons.addWidget(emergency)
 		finish = QtGui.QPushButton("Finish")
+		finish.clicked.connect(self.finish_clicked)
 		buttons.addWidget(finish)
 
 
@@ -143,8 +156,37 @@ class gui(QtGui.QWidget):
 		self.update_raw_data_signal.connect(self.update_raw_data)
 		self.angle = rospy.Subscriber("ardrone/navdata",Navdata ,self.callback)
 		self.raw_data = rospy.Subscriber("ardrone/imu", Imu, self.raw_data_callback)
+		self.waypoint_data = rospy.Publisher("/waypoint_receiver", String , queue_size=10)
 
 		#self.read_pitch = rospy.Subscriber("ardrone/navdata/rotY", Float32 ,self.update_roll)
+
+	def mode_1_clicked(self):
+		self.mode.publish(1)
+
+	def mode_2_clicked(self):
+		self.mode.publish(2)
+
+	def mode_3_clicked(self):
+		self.mode.publish(3)
+
+	def mode_4_clicked(self):
+		self.mode.publish(4)
+
+	def finish_clicked(self):
+		pass
+
+	def send_clicked(self):
+		self.waypoint_data.publish(self.waypoints.text())
+
+	def takeoff_clicked(self):
+		self.takeoff.publish(1)
+
+	def land_clicked(self):
+		self.takeoff.publish(2)
+
+	def emergency_clicked(self):
+		self.takeoff.publish(3)
+
 
 
 

@@ -15,6 +15,7 @@ from subprocess import call
 from math import *
 from waypoint import waypoint_mode
 
+mode = 0
 
 class image_receiver:
 
@@ -32,6 +33,7 @@ class image_receiver:
 		self.image_sub = rospy.Subscriber("/ardrone/image_raw",Image,self.callback)
 		self.image_pos_pub = rospy.Publisher("data", Quaternion, queue_size = 10)
 		self.state = 0
+		#self.mode = rospy.Subscriber("/mode", Int32, self.mode_selection)
 
 
 
@@ -120,22 +122,34 @@ class image_receiver:
 			cv2.waitKey(3)
 		else:
 			self.follow_line(cv_image)
+
+
+def mode_selection(data):
+
+	global mode
+	mode = data.data
+
+
 		
 
 
 
 def main(args):
-	mode = input("mode: ")
-	if mode == 3:
-		rospy.init_node('image_receiver', anonymous=True)
+	rospy.init_node('image_receiver', anonymous=True)
+	rospy.Subscriber("/mode", Int32, mode_selection)
+	while mode == 0:
+		pass
+	if mode == 4:
+		#rospy.init_node('image_receiver', anonymous=True)
 		ic = waypoint_mode()
+	elif mode == 1:
+		#rospy.init_node('image_receiver', anonymous=True)
+		ic = image_receiver(0)
 	elif mode == 2:
-		mode = 3
-		rospy.init_node('image_receiver', anonymous=True)
-		ic = image_receiver(mode)
+		#rospy.init_node('image_receiver', anonymous=True)
+		ic = image_receiver(1)
 	else:
-		rospy.init_node('image_receiver', anonymous=True)
-		ic = image_receiver(mode)
+		ic = image_receiver(3)
 	#rospy.init_node('image_receiver', anonymous=True)
 	try:
 		rospy.spin()

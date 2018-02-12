@@ -40,7 +40,7 @@ class controller:
 
 		self.image_pos = rospy.Subscriber("data",Quaternion,self.callback)
 		self.subNavdata = rospy.Subscriber('/ardrone/navdata',Navdata,self.ReceiveNavdata)
-		self.receive_key = rospy.Subscriber('/keyboard', Int32, self.keyPressEvent) 
+		self.receive_key = rospy.Subscriber('/takeoff', Int32, self.keyPressEvent) 
 		
 		# Allow the controller to publish to the /ardrone/takeoff, land and reset topics
 		self.pubLand    = rospy.Publisher('/ardrone/land',Empty)
