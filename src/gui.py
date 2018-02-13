@@ -32,6 +32,7 @@ class gui(QtGui.QWidget):
 		super(gui, self).__init__()
 		self.mode = rospy.Publisher("/mode", Int32, queue_size = 10)
 		self.takeoff = rospy.Publisher("/takeoff", Int32, queue_size = 10)
+		self.change_mode = rospy.Publisher("/change_mode", Int32, queue_size = 10)
 		#self.wid = 0
 		#self.init_gui()
 		'''vbox = QtGui.QVBoxLayout()
@@ -54,18 +55,18 @@ class gui(QtGui.QWidget):
 		modes.addWidget(mode_label)
 
 		mode_buttons = QtGui.QVBoxLayout()
-		mode_1 = QtGui.QPushButton("Front Camera")
-		mode_1.clicked.connect(self.mode_1_clicked)
-		mode_buttons.addWidget(mode_1)
-		mode_2 = QtGui.QPushButton("Bottom Camera")
-		mode_2.clicked.connect(self.mode_2_clicked)
-		mode_buttons.addWidget(mode_2)
-		mode_3 = QtGui.QPushButton("Line Follower")
-		mode_3.clicked.connect(self.mode_3_clicked)
-		mode_buttons.addWidget(mode_3)
-		mode_4 = QtGui.QPushButton("Waypoints")
-		mode_4.clicked.connect(self.mode_4_clicked)
-		mode_buttons.addWidget(mode_4)
+		self.mode_1 = QtGui.QPushButton("Front Camera")
+		self.mode_1.clicked.connect(self.mode_1_clicked)
+		mode_buttons.addWidget(self.mode_1)
+		self.mode_2 = QtGui.QPushButton("Bottom Camera")
+		self.mode_2.clicked.connect(self.mode_2_clicked)
+		mode_buttons.addWidget(self.mode_2)
+		self.mode_3 = QtGui.QPushButton("Line Follower")
+		self.mode_3.clicked.connect(self.mode_3_clicked)
+		mode_buttons.addWidget(self.mode_3)
+		self.mode_4 = QtGui.QPushButton("Waypoints")
+		self.mode_4.clicked.connect(self.mode_4_clicked)
+		mode_buttons.addWidget(self.mode_4)
 
 		waypoints_box = QtGui.QHBoxLayout()
 		self.waypoints = QtGui.QLineEdit()
@@ -162,18 +163,31 @@ class gui(QtGui.QWidget):
 
 	def mode_1_clicked(self):
 		self.mode.publish(1)
+		self.mode_2.setEnabled(False)
+		self.mode_3.setEnabled(False)
+		self.mode_4.setEnabled(False)
 
 	def mode_2_clicked(self):
 		self.mode.publish(2)
+		self.mode_1.setEnabled(False)
+		self.mode_3.setEnabled(False)
+		self.mode_4.setEnabled(False)
 
 	def mode_3_clicked(self):
 		self.mode.publish(3)
+		self.mode_1.setEnabled(False)
+		self.mode_2.setEnabled(False)
+		self.mode_4.setEnabled(False)
 
 	def mode_4_clicked(self):
 		self.mode.publish(4)
+		self.mode_1.setEnabled(False)
+		self.mode_2.setEnabled(False)
+		self.mode_3.setEnabled(False)
 
 	def finish_clicked(self):
 		pass
+		#self.change_mode.publish(1)
 
 	def send_clicked(self):
 		self.waypoint_data.publish(self.waypoints.text())
@@ -183,6 +197,10 @@ class gui(QtGui.QWidget):
 
 	def land_clicked(self):
 		self.takeoff.publish(2)
+		self.mode_1.setEnabled(True)
+		self.mode_2.setEnabled(True)
+		self.mode_3.setEnabled(True)
+		self.mode_4.setEnabled(True)
 
 	def emergency_clicked(self):
 		self.takeoff.publish(3)
