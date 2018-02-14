@@ -114,6 +114,7 @@ class gui(QtGui.QWidget):
 		self.ax_label = QtGui.QLabel()
 		self.ay_label = QtGui.QLabel()
 		self.az_label = QtGui.QLabel()
+		self.battery_label = QtGui.QLabel()
 		self.data1.setText("Roll")
 		self.data2.setText("Pitch")
 		self.data3.setText("Yaw")
@@ -124,6 +125,7 @@ class gui(QtGui.QWidget):
 		self.ax_label.setText("ax")
 		self.ay_label.setText("ay")
 		self.az_label.setText("az")
+		self.battery_label.setText("Battery :")
 		textbox.addWidget(self.data1)
 		textbox.addWidget(self.data2)
 		textbox.addWidget(self.data3)
@@ -134,6 +136,7 @@ class gui(QtGui.QWidget):
 		textbox.addWidget(self.ax_label)
 		textbox.addWidget(self.ay_label)
 		textbox.addWidget(self.az_label)
+		textbox.addWidget(self.battery_label)
 		self.wid = AttitudeIndicator()
 		modes.addLayout(mode_buttons)
 		commands.addLayout(modes)
@@ -319,6 +322,8 @@ class gui(QtGui.QWidget):
 		pitch = data.rotY
 		yaw = data.rotZ
 		altitude = data.altd
+		battery = data.batteryPercent
+		self.battery_label.setText("Battery: " + str(battery))
 		#roll = 20
 		#pitch = 30
 		self.rollPitchSignal.emit(roll, -pitch)
