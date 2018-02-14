@@ -103,7 +103,9 @@ The path coordinates are in meters and they say how many meters the drone should
 Example :
 
 1,0,0 => one meter to the left
+
 0,1,0 => one meter forward
+
 0,0,1 => one meter up
 
 To send more than one vector you need to separate the vectors with one space.
