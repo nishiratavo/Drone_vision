@@ -99,9 +99,6 @@ class gui(QtGui.QWidget):
 		emergency = QtGui.QPushButton("Emergency")
 		emergency.clicked.connect(self.emergency_clicked)
 		buttons.addWidget(emergency)
-		finish = QtGui.QPushButton("Finish")
-		finish.clicked.connect(self.finish_clicked)
-		buttons.addWidget(finish)
 
 
 		self.data1 = QtGui.QLabel()
@@ -188,9 +185,6 @@ class gui(QtGui.QWidget):
 		self.mode_2.setEnabled(False)
 		self.mode_3.setEnabled(False)
 
-	def finish_clicked(self):
-		pass
-		#self.change_mode.publish(1)
 
 	def send_clicked(self):
 		self.waypoint_data.publish(self.waypoints.text())

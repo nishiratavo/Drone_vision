@@ -1,6 +1,6 @@
 # Drone Vision
 
-AR.Drone camera based tracking. In the actual phase it has 3 modes, a green laser pointer tracking, which can use any of the two cameras, and a led strip follower with the bottom camera (like a line follower robot, but with a drone).
+AR.Drone camera based tracking. In the actual phase it has 4 modes, a green laser pointer tracking, which can use any of the two cameras, a led strip follower with the bottom camera (like a line follower robot, but with a drone), and a path follower with user defined paths.
 
 ## Getting Started
 
@@ -37,6 +37,11 @@ sudo apt-get install ros-kinetic-cv-bridge
 ### Python 2.7
 If you are using Ubuntu 16.04 Python comes pre-installed.
 
+You also need to install Qt.
+```
+sudo apt-get install python-pyside
+```
+
 ### OpenCV 3.4
 To install OpenCV you just need to follow the instructions in this [page](https://www.pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/).
 
@@ -61,31 +66,53 @@ catkin_make
 
 ## How to use
 First turn on the AR.Drone and connect to it via wifi.
-Then open the terminal and navigate to your catkin workspace.
+Then open the terminal and navigate to your Drove_vision source folder (Probably this path if you're using catkin workspace).
 ```
-cd ~/catkin_ws
+cd ~/catkin_ws/src/Drone_vision/src/
 ```
-Initialize the program with roslaunch.
+Initialize the program with the bash script.
 ```
-roslaunch Drone_vision Drone_vision.launch
+./drone.sh
 ``` 
-Wait for everything to open and then select the mode just by writing the number in the terminal window. (0 = green pointer with front camera, 1 = green pointer with bottom camera, 2 = led strip follower).
+Wait for everything to open and then select the mode.
 
-Wait for the camera's image to open and then send the takeoff command in a new terminal.
-```
-rostopic pub -1 /keyboard std_msgs/Int32 1
-```
-Now you can use the green pointer and the drone will follow it.
+Wait for the camera's image to open (the path follower doesn't use the camera) and then send the takeoff command.
 
 To land the drone send the land command.
-```
-rostopic pub -1 /keyboards std_msgs/Int32 2
-```
 
 In case of emergency send the emergency command.
+
+### Front Camera
+
+Wait for the drone to stabilise then use the green pointer and the drone will follow.
+
+### Bottom Camera
+
+Wait for the drone to stabilise and wait some seconds for the drone to achieve his final altitude. After that use the green pointer and the drone will follow.
+
+### Line Follower
+
+Wait for the drone to stabilise and it will begin to follow the led strip.
+
+### Path Follower
+
+Wait for the drone to stabilise and send the path it should follow.
+
+The path coordinates are in meters and they say how many meters the drone should fly in each direction.
+
+Example :
+
+1,0,0 => one meter to the left
+0,1,0 => one meter forward
+0,0,1 => one meter up
+
+To send more than one vector you need to separate the vectors with one space.
+
+To fly in a square beginning in the bottom left corner send :
 ```
-rostopic pub -1 /keyboards std_msgs/Int32 3
+0,1,0 -1,0,0 0,-1,0 1,0,0
 ```
+
 
 ## Authors
 
