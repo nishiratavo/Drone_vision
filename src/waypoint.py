@@ -17,6 +17,7 @@ from pid import PID
 
 
 class waypoint_mode:
+	''' Class for waypoint mode '''
 
 	def __init__(self):
 		self.points = []
@@ -47,6 +48,7 @@ class waypoint_mode:
 
 
 	def ReceiveNavdata(self,navdata):
+		# calculate the distance from the next point and use the PID controller, sending the roll, pitch and altitude for the controller
 		if True:
 			
 			if self.points != []:
@@ -114,6 +116,7 @@ class waypoint_mode:
 			#self.teste.publish(str(self.points) + " " + str(pitch) + " " + str(altitude))
 
 	def SetWaypoint(self,data):
+		#called when user inputs a path
 		self.new_point = 1
 		if not(type(data) is str):
 			data = data.data
@@ -128,22 +131,5 @@ class waypoint_mode:
 
 	def Reset(self,data):
 		self.points = [[0,0,0]]
-
-
-	def unsub(self):
-		self.subNavdata.unregister()
-		self.reset.unregister()
-		self.get_commands.unregister()
-
-	def sub(self):
-		self.subNavdata = rospy.Subscriber('/ardrone/navdata',Navdata,self.ReceiveNavdata)
-		self.reset = rospy.Subscriber("/position", Int32, self.Reset)
-		self.get_commands = rospy.Subscriber("/waypoint_receiver", String , self.SetWaypoint)
-
-	def __del__(self):
-		pass
-
-
-
 
 

@@ -1,6 +1,7 @@
 import time
 
 class PID:
+	''' PID controller algorithm '''
 	
 	def __init__(self, kp, ki, kd):
 		self.last_error = 0

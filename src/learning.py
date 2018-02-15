@@ -21,6 +21,7 @@ change_mode = 0
 image_exist = 0
 
 class image_receiver:
+	''' Class used in the modes in which camera is required '''
 
 	def __init__(self, camera = -1) :
 		self.best_x = 0
@@ -44,6 +45,7 @@ class image_receiver:
 
 
 	def color_detect(self, camera_image):
+		# receives a image and return the mask, with only the chosen color
 		mask = cv2.inRange(camera_image, self.lower, self.upper)
 		im2, self.contours, hierarchy = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 		one_color_image = cv2.bitwise_and(camera_image, camera_image, mask = mask)
@@ -51,6 +53,7 @@ class image_receiver:
 
 
 	def follow_line(self, camera_image):
+		# sends for the controller the distance from the line and the angle between the drone and the line
 		global image_exist
 		height, width = camera_image.shape[:2]
 		crop_img = camera_image[0:150, 0:width]
@@ -90,7 +93,8 @@ class image_receiver:
 
 
 
-	def callback(self,data) :
+	def callback(self,data):
+		# selects between modes
 		if True:
 
 			self.teste.publish("Entrou")
@@ -114,37 +118,35 @@ class image_receiver:
 				print (e);
 			
 			if self.camera == 0 or self.camera == 2:
-			   	output_image = self.color_detect(cv_image)
-				for i in self.contours:
-					(x,y),radius = cv2.minEnclosingCircle(i)
-					if radius < 20:
-
-						center = (int(x),int(y))
-						radius = int(radius)
-						cv2.circle(output_image,center,radius,(0,255,0),2)
-						height, width = output_image.shape[:2]
-						x = int(x - width/2)
-						y = int(y - height/2)
-						self.image_pos_pub.publish(x,y,radius,self.camera)
-						break
-					else :
-						self.image_pos_pub.publish(0,0,0,self.camera)
-				
-				if self.contours == []:
-					self.image_pos_pub.publish(0,0,0,self.camera)
-
-				#cv2.namedWindow("Image window")
-				#cv2.startWindowThread()
-
-				output_image = cv2.resize(output_image, (0,0), fx = 0.7, fy = 0.7)
-				cv_image = cv2.resize(cv_image, (0,0), fx = 0.7, fy = 0.7)
-
-				cv2.imshow("Image window", np.hstack([output_image, cv_image]))
-				image_exist = 1
-				cv2.waitKey(3)
+			   	self.camera_track(cv_image)
 			else:
 				self.follow_line(cv_image)	
 
+	def camera_track(self, cv_image):
+		# sends for the controller the error in the 2 axis
+		output_image = self.color_detect(cv_image)
+			for i in self.contours:
+				(x,y),radius = cv2.minEnclosingCircle(i)
+				if radius < 20:
+					center = (int(x),int(y))
+					radius = int(radius)
+					cv2.circle(output_image,center,radius,(0,255,0),2)
+					height, width = output_image.shape[:2]
+					x = int(x - width/2)
+					y = int(y - height/2)
+					self.image_pos_pub.publish(x,y,radius,self.camera)
+					break
+				else :
+					self.image_pos_pub.publish(0,0,0,self.camera)
+			
+			if self.contours == []:
+				self.image_pos_pub.publish(0,0,0,self.camera)
+
+			output_image = cv2.resize(output_image, (0,0), fx = 0.7, fy = 0.7)
+			cv_image = cv2.resize(cv_image, (0,0), fx = 0.7, fy = 0.7)
+			cv2.imshow("Image window", np.hstack([output_image, cv_image]))
+			image_exist = 1
+			cv2.waitKey(3)
 
 
 

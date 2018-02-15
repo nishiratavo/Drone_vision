@@ -17,7 +17,8 @@ import numpy as np
 from math import *
 
 
-class controller: 
+class controller:
+	''' Handles the PID control in every axis of the drone deppending on the flight mode '''
 	
 	def __init__(self):
 
@@ -83,11 +84,13 @@ class controller:
 		self.command.angular.z = yaw_velocity
 
 	def SendCommand(self):
+		# send the current command
 		if self.status == DroneStatus.Flying or self.status == DroneStatus.GotoHover or self.status == DroneStatus.Hovering:
 			self.pubCommand.publish(self.command)
 
 
 	def keyPressEvent(self,data):
+		# send commands and reset the controllers when requested
 		if data.data  == 1 :
 			self.roll_control.reset()
 			self.altitude_control.reset()
@@ -116,6 +119,7 @@ class controller:
 
 
 	def integration(self):
+		# integrator for control in the y axis on the front camera mode
 		actual_time = time.time()
 		dt = actual_time - self.last_time
 		delta = (self.vy + self.last_vy)/2
@@ -126,6 +130,7 @@ class controller:
 
 
 	def pointer_follower_front(self, data):
+		# controller for the front camera mode
 		if self.first_time == 0:
 			self.roll_control.setConstants(1,0,2)
 			self.altitude_control.setConstants(1,0,0)
@@ -155,6 +160,7 @@ class controller:
 
 
 	def pointer_follower_bottom(self,data):
+		# controller for the bottom camera mode
 		if self.first_time == 0:
 			self.roll_control.setConstants(0.1,0,0)
 			self.pitch_control.setConstants(0.1,0,0)
@@ -195,6 +201,7 @@ class controller:
 
 
 	def line_follower(self, data):
+		# controller for the line follower mode
 		if self.first_time == 0:
 			self.roll_control.setConstants(1,0,10)
 			self.yaw_control.setConstants(1,0,0.1)
@@ -234,11 +241,10 @@ class controller:
 
 
 	def waypoint(self,data):
+		# send commands in the waypoint mode
 		x = data.x
 		y = data.y
 		z = data.z
-		
-
 
 		while (time.time() - self.takeoff_time < 8):
 			self.pub_reset.publish(1)

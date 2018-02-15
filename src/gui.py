@@ -22,6 +22,7 @@ import signal
 from subprocess import call
 
 class gui(QtGui.QWidget):
+	''' Class for the graphical interface '''
 
 	rollPitchSignal = Signal(float, float)
 	update_data_signal = Signal(float, float, float, float)
@@ -33,17 +34,7 @@ class gui(QtGui.QWidget):
 		self.mode = rospy.Publisher("/mode", Int32, queue_size = 10)
 		self.takeoff = rospy.Publisher("/takeoff", Int32, queue_size = 10)
 		self.change_mode = rospy.Publisher("/change_mode", Int32, queue_size = 10)
-		#self.wid = 0
-		#self.init_gui()
-		'''vbox = QtGui.QVBoxLayout()
-		self.wid = AttitudeIndicator()
-		vbox.addWidget(self.wid)
-		hbox = QtGui.QHBoxLayout()
-		hbox.addLayout(vbox)
-		self.setLayout(hbox)
-		self.setGeometry(50, 50, 510, 510)
-		self.setWindowTitle('Attitude Indicator')
-		self.show()'''
+
 		vbox = QtGui.QHBoxLayout()
 		textbox = QtGui.QVBoxLayout()
 
@@ -159,8 +150,6 @@ class gui(QtGui.QWidget):
 		self.raw_data = rospy.Subscriber("ardrone/imu", Imu, self.raw_data_callback)
 		self.waypoint_data = rospy.Publisher("/waypoint_receiver", String , queue_size=10)
 
-		#self.read_pitch = rospy.Subscriber("ardrone/navdata/rotY", Float32 ,self.update_roll)
-
 	def mode_1_clicked(self):
 		self.mode.publish(1)
 		self.mode_2.setEnabled(False)
@@ -202,61 +191,8 @@ class gui(QtGui.QWidget):
 	def emergency_clicked(self):
 		self.takeoff.publish(3)
 
-
-
-
-	def init_gui(self):
-
-		vbox = QtGui.QHBoxLayout()
-		textbox = QtGui.QVBoxLayout()
-		buttons = QtGui.QVBoxLayout()
-		button = QtGui.QLabel()
-		data1 = QtGui.QLabel()
-		data2 = QtGui.QLabel()
-		data3 = QtGui.QLabel()
-		data4 = QtGui.QLabel()
-		button.setText("teste")
-		data1.setText("Roll")
-		data2.setText("Pitch")
-		data3.setText("Yaw")
-		data4.setText("Altitude")
-		buttons.addWidget(button)
-		textbox.addWidget(data1)
-		textbox.addWidget(data2)
-		textbox.addWidget(data3)
-		textbox.addWidget(data4)
-
-		self.wid = AttitudeIndicator()
-
-		vbox.addWidget(self.wid)
-
-		vbox.addLayout(textbox) 
-		vbox.addLayout(buttons)
-		self.setLayout(vbox)
-		self.setGeometry(50, 50, 710, 510)
-		self.setWindowTitle('Attitude Indicator')
-		self.show()
-
-
-
-
-
-
-
-
-
-		'''vbox = QtGui.QVBoxLayout()
-		self.wid = AttitudeIndicator()
-		vbox.addWidget(self.wid)
-		hbox = QtGui.QHBoxLayout()
-		hbox.addLayout(vbox)
-		self.setLayout(hbox)
-		self.setGeometry(50, 50, 510, 510)
-		self.setWindowTitle('Attitude Indicator')
-		self.show()'''
-
-
 	def raw_data_callback(self, data):
+		# updater graphical interface with the IMU data
 		gx = data.angular_velocity.x
 		gy = data.angular_velocity.y
 		gz = data.angular_velocity.z
@@ -266,6 +202,7 @@ class gui(QtGui.QWidget):
 		self.update_raw_data_signal.emit(gx,gy,gz,ax,ay,az)
 
 	def update_raw_data(self,gx,gy,gz,ax,ay,az):
+		# formating the data
 		gx = str(gx)
 		gy = str(gy)
 		gz = str(gz)
@@ -293,6 +230,7 @@ class gui(QtGui.QWidget):
 
 
 	def update_data(self,roll,pitch,yaw,altitude):
+		# formating the data
 
 		roll = str(roll)
 		pitch = str(pitch)
@@ -311,6 +249,7 @@ class gui(QtGui.QWidget):
 		self.data4.setText("Altitude: " + altitude)
 
 	def callback(self, data):
+		# called when received data
 
 		roll = data.rotX
 		pitch = data.rotY
