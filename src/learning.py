@@ -125,28 +125,28 @@ class image_receiver:
 	def camera_track(self, cv_image):
 		# sends for the controller the error in the 2 axis
 		output_image = self.color_detect(cv_image)
-			for i in self.contours:
-				(x,y),radius = cv2.minEnclosingCircle(i)
-				if radius < 20:
-					center = (int(x),int(y))
-					radius = int(radius)
-					cv2.circle(output_image,center,radius,(0,255,0),2)
-					height, width = output_image.shape[:2]
-					x = int(x - width/2)
-					y = int(y - height/2)
-					self.image_pos_pub.publish(x,y,radius,self.camera)
-					break
-				else :
-					self.image_pos_pub.publish(0,0,0,self.camera)
-			
-			if self.contours == []:
+		for i in self.contours:
+			(x,y),radius = cv2.minEnclosingCircle(i)
+			if radius < 20:
+				center = (int(x),int(y))
+				radius = int(radius)
+				cv2.circle(output_image,center,radius,(0,255,0),2)
+				height, width = output_image.shape[:2]
+				x = int(x - width/2)
+				y = int(y - height/2)
+				self.image_pos_pub.publish(x,y,radius,self.camera)
+				break
+			else :
 				self.image_pos_pub.publish(0,0,0,self.camera)
+			
+		if self.contours == []:
+			self.image_pos_pub.publish(0,0,0,self.camera)
 
-			output_image = cv2.resize(output_image, (0,0), fx = 0.7, fy = 0.7)
-			cv_image = cv2.resize(cv_image, (0,0), fx = 0.7, fy = 0.7)
-			cv2.imshow("Image window", np.hstack([output_image, cv_image]))
-			image_exist = 1
-			cv2.waitKey(3)
+		output_image = cv2.resize(output_image, (0,0), fx = 0.7, fy = 0.7)
+		cv_image = cv2.resize(cv_image, (0,0), fx = 0.7, fy = 0.7)
+		cv2.imshow("Image window", np.hstack([output_image, cv_image]))
+		image_exist = 1
+		cv2.waitKey(3)
 
 
 

@@ -172,6 +172,8 @@ class controller:
 
 
 		if ((self.state_altitude == 0) and (self.status != 2)):
+			self.SetCommand(0,0,0,0)
+			self.SendCommand()
 			time.sleep(5)
 			self.SetCommand(0,0,0,1)
 			self.SendCommand()
