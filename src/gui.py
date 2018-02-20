@@ -1,7 +1,9 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import time
 import roslib
+import os
 roslib.load_manifest('Drone_vision')
 import sys
 import rospy
@@ -91,40 +93,74 @@ class gui(QtGui.QWidget):
 		emergency.clicked.connect(self.emergency_clicked)
 		buttons.addWidget(emergency)
 
+		self.save_data = QtGui.QPushButton("Save Data")
+		self.save_data.clicked.connect(self.save_data_clicked)
+		buttons.addWidget(self.save_data)
 
+		self.attitude_label = QtGui.QLabel()
 		self.data1 = QtGui.QLabel()
 		self.data2 = QtGui.QLabel()
 		self.data3 = QtGui.QLabel()
 		self.data4 = QtGui.QLabel()
+		#self.frame_attitude = QtGui.QFrame()
+		#self.frame_attitude.setFrameStyle(0x0001| 0x0010)
+
+		self.gyro_label = QtGui.QLabel()
 		self.gx_label = QtGui.QLabel()
 		self.gy_label = QtGui.QLabel()
 		self.gz_label = QtGui.QLabel()
+
+		self.accel_label = QtGui.QLabel()
 		self.ax_label = QtGui.QLabel()
 		self.ay_label = QtGui.QLabel()
 		self.az_label = QtGui.QLabel()
+
+		self.info_label = QtGui.QLabel()
 		self.battery_label = QtGui.QLabel()
+
+		self.attitude_label.setText("                         Attitude")
 		self.data1.setText("Roll")
 		self.data2.setText("Pitch")
 		self.data3.setText("Yaw")
 		self.data4.setText("Altitude")
+
+		self.gyro_label.setText("                         Gyroscope")
 		self.gx_label.setText("gx")
 		self.gy_label.setText("gy")
 		self.gz_label.setText("gz")
+
+		self.accel_label.setText("                         Accelerometer")
 		self.ax_label.setText("ax")
 		self.ay_label.setText("ay")
 		self.az_label.setText("az")
+
+		self.info_label.setText("                         Drone Info")
 		self.battery_label.setText("Battery :")
+
+		#self.frame_attitude.addWidget(self.data1)
+		#self.frame_attitude.addWidget(self.data2)
+		#self.frame_attitude.addWidget(self.data3)
+		#self.frame_attitude.addWidget(self.data4)
+		#textbox.addWidget(self.frame_attitude)
+
+		textbox.addWidget(self.attitude_label)
 		textbox.addWidget(self.data1)
 		textbox.addWidget(self.data2)
 		textbox.addWidget(self.data3)
 		textbox.addWidget(self.data4)
+
+		textbox.addWidget(self.gyro_label)
 		textbox.addWidget(self.gx_label)
 		textbox.addWidget(self.gy_label)
 		textbox.addWidget(self.gz_label)
+		textbox.addWidget(self.accel_label)
 		textbox.addWidget(self.ax_label)
 		textbox.addWidget(self.ay_label)
 		textbox.addWidget(self.az_label)
+
+		textbox.addWidget(self.info_label)
 		textbox.addWidget(self.battery_label)
+
 		self.wid = AttitudeIndicator()
 		modes.addLayout(mode_buttons)
 		commands.addLayout(modes)
@@ -138,6 +174,12 @@ class gui(QtGui.QWidget):
 		self.setGeometry(50, 50, 900, 410)
 		self.setWindowTitle('Attitude Indicator')
 		self.show()
+
+		self.half_data = -1
+		self.data = ["roll", "pitch", "yaw", "altitude", "gx", "gy", "gz", "ax", "ay", "az"]
+		self.all_data = []
+		#data = self.data
+		self.all_data.append(self.data)
 
 
 		rospy.init_node('gui', anonymous=True)
@@ -191,8 +233,26 @@ class gui(QtGui.QWidget):
 	def emergency_clicked(self):
 		self.takeoff.publish(3)
 
+	def save_data_clicked(self):
+		if self.half_data == -1:
+			self.save_data.setText("Stop saving data")
+			self.half_data = 0
+		else:
+			self.save_data.setText("Save Data")
+			self.half_data = -1
+			path = os.path.join(os.path.expanduser('~'), 'catkin_ws', 'src', 'Drone_vision', 'src', 'data.txt')
+			file = open(path, "w")
+			file.write('roll pitch yaw altitude gx gy gz ax ay az\n')
+			for x in self.all_data:
+				line = ' '.join(x)
+				file.write(line)
+				file.write('\n')
+			file.close()
+				
+
+
 	def raw_data_callback(self, data):
-		# updater graphical interface with the IMU data
+		# update graphical interface with the IMU data
 		gx = data.angular_velocity.x
 		gy = data.angular_velocity.y
 		gz = data.angular_velocity.z
@@ -200,6 +260,20 @@ class gui(QtGui.QWidget):
 		ay = data.linear_acceleration.y
 		az = data.linear_acceleration.z
 		self.update_raw_data_signal.emit(gx,gy,gz,ax,ay,az)
+
+		if self.half_data == 1:
+			self.data[4] = str(gx)
+			self.data[5] = str(gy)
+			self.data[6] = str(gz)
+			self.data[7] = str(ax)
+			self.data[8] = str(ay)
+			self.data[9] = str(az)
+			self.all_data.append(self.data)
+			self.half_data = 0
+
+
+
+
 
 	def update_raw_data(self,gx,gy,gz,ax,ay,az):
 		# formating the data
@@ -220,12 +294,12 @@ class gui(QtGui.QWidget):
 
 
 
-		self.gx_label.setText("gx: " + gx)
-		self.gy_label.setText("gy: " + gy)
-		self.gz_label.setText("gz: " + gz)
-		self.ax_label.setText("ax: " + ax)
-		self.ay_label.setText("ay: " + ay)
-		self.az_label.setText("az: " + az)
+		self.gx_label.setText("gx: " + gx + " rad/s")
+		self.gy_label.setText("gy: " + gy + " rad/s")
+		self.gz_label.setText("gz: " + gz + " rad/s")
+		self.ax_label.setText("ax: " + ax + u" m/s²")
+		self.ay_label.setText("ay: " + ay + u" m/s²")
+		self.az_label.setText("az: " + az + u" m/s²")
 
 
 
@@ -243,10 +317,10 @@ class gui(QtGui.QWidget):
 		altitude = altitude[:altitude.index(".") + 3]
 
 
-		self.data1.setText("Roll: " + roll)
-		self.data2.setText("Pitch: " + pitch)
-		self.data3.setText("Yaw: " + yaw)
-		self.data4.setText("Altitude: " + altitude)
+		self.data1.setText("Roll: " + roll + u"°")
+		self.data2.setText("Pitch: " + pitch + u"°")
+		self.data3.setText("Yaw: " + yaw + u"°")
+		self.data4.setText("Altitude: " + altitude + "mm")
 
 	def callback(self, data):
 		# called when received data
@@ -261,6 +335,13 @@ class gui(QtGui.QWidget):
 		#pitch = 30
 		self.rollPitchSignal.emit(roll, -pitch)
 		self.update_data_signal.emit(roll,pitch,yaw,altitude)
+
+		if self.half_data == 0:
+			self.data[0] = str(roll)
+			self.data[1] = str(pitch)
+			self.data[2] = str(yaw)
+			self.data[3] = str(altitude)
+			self.half_data = 1
 		#self.data1.setText("Roll: " + str(roll))
 		#self.data2.setText("Pitch: " + str(pitch))
 		#self.data3.setText("Yaw: " + str(yaw))
