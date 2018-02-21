@@ -23,6 +23,21 @@ from ai import AttitudeIndicator
 import signal
 from subprocess import call
 
+
+
+class KeyMapping(object):
+	PitchForward     = QtCore.Qt.Key.Key_W
+	PitchBackward    = QtCore.Qt.Key.Key_S
+	RollLeft         = QtCore.Qt.Key.Key_A
+	RollRight        = QtCore.Qt.Key.Key_D
+	YawLeft          = QtCore.Qt.Key.Key_Q
+	YawRight         = QtCore.Qt.Key.Key_E
+	IncreaseAltitude = QtCore.Qt.Key.Key_R
+	DecreaseAltitude = QtCore.Qt.Key.Key_F
+	Takeoff          = QtCore.Qt.Key.Key_Y
+	Land             = QtCore.Qt.Key.Key_H
+	Emergency        = QtCore.Qt.Key.Key_Space
+
 class gui(QtGui.QWidget):
 	''' Class for the graphical interface '''
 
@@ -61,10 +76,15 @@ class gui(QtGui.QWidget):
 		self.mode_4.clicked.connect(self.mode_4_clicked)
 		mode_buttons.addWidget(self.mode_4)
 
+		self.mode_5 = QtGui.QPushButton("Keyboard Control")
+		self.mode_5.clicked.connect(self.mode_5_clicked)
+		mode_buttons.addWidget(self.mode_5)
+
 		waypoints_box = QtGui.QHBoxLayout()
 		self.waypoints = QtGui.QLineEdit()
 		self.waypoints.setText("0,0,0")
 		self.waypoints.setFixedWidth(250)
+		self.waypoints.setEnabled(False)
 		#waypoints.resize(50,20)
 		waypoints_box.addWidget(self.waypoints)
 
@@ -191,30 +211,48 @@ class gui(QtGui.QWidget):
 		self.angle = rospy.Subscriber("ardrone/navdata",Navdata ,self.callback)
 		self.raw_data = rospy.Subscriber("ardrone/imu", Imu, self.raw_data_callback)
 		self.waypoint_data = rospy.Publisher("/waypoint_receiver", String , queue_size=10)
+		self.send_keyboard = rospy.Publisher("/keyboard", Quaternion, queue_size=10)
 
 	def mode_1_clicked(self):
 		self.mode.publish(1)
 		self.mode_2.setEnabled(False)
 		self.mode_3.setEnabled(False)
 		self.mode_4.setEnabled(False)
+		self.mode_5.setEnabled(False)
+		self.waypoints.setEnabled(False)
 
 	def mode_2_clicked(self):
 		self.mode.publish(2)
 		self.mode_1.setEnabled(False)
 		self.mode_3.setEnabled(False)
 		self.mode_4.setEnabled(False)
+		self.mode_5.setEnabled(False)
+		self.waypoints.setEnabled(False)
 
 	def mode_3_clicked(self):
 		self.mode.publish(3)
 		self.mode_1.setEnabled(False)
 		self.mode_2.setEnabled(False)
 		self.mode_4.setEnabled(False)
+		self.mode_5.setEnabled(False)
+		self.waypoints.setEnabled(False)
 
 	def mode_4_clicked(self):
 		self.mode.publish(4)
 		self.mode_1.setEnabled(False)
 		self.mode_2.setEnabled(False)
 		self.mode_3.setEnabled(False)
+		self.mode_5.setEnabled(False)
+		self.waypoints.setEnabled(True)
+
+
+	def mode_5_clicked(self):
+		self.mode.publish(5)
+		self.mode_1.setEnabled(False)
+		self.mode_2.setEnabled(False)
+		self.mode_3.setEnabled(False)
+		self.mode_4.setEnabled(False)
+		self.waypoints.setEnabled(False)
 
 
 	def send_clicked(self):
@@ -229,6 +267,7 @@ class gui(QtGui.QWidget):
 		self.mode_2.setEnabled(True)
 		self.mode_3.setEnabled(True)
 		self.mode_4.setEnabled(True)
+		self.mode_5.setEnabled(True)
 
 	def emergency_clicked(self):
 		self.takeoff.publish(3)
@@ -353,6 +392,82 @@ class gui(QtGui.QWidget):
 		pitch = data.data
 		self.wid.setPitch(pitch)'''
 
+
+
+	def keyPressEvent(self, event):
+		key = event.key()
+
+		# If we have constructed the drone controller and the key is not generated from an auto-repeating key
+		if not event.isAutoRepeat():
+			roll = 0
+			pitch = 0
+			yaw_velocity = 0
+			z_velocity = 0
+				# Handle the important cases first!
+				#if key == KeyMapping.Emergency:
+				#	self.SendEmergency()
+				#elif key == KeyMapping.Takeoff:
+				#	self.SendTakeoff()
+				#elif key == KeyMapping.Land:
+				#	self.SendLand()
+				
+					# Now we handle moving, notice that this section is the opposite (+=) of the keyrelease section
+			if key == KeyMapping.YawLeft:
+				yaw_velocity = 0.5
+			elif key == KeyMapping.YawRight:
+				yaw_velocity = -0.5
+
+			elif key == KeyMapping.PitchForward:
+				pitch = 1
+			elif key == KeyMapping.PitchBackward:
+				pitch = -1
+
+			elif key == KeyMapping.RollLeft:
+				roll = 1
+			elif key == KeyMapping.RollRight:
+				roll = -1
+
+			elif key == KeyMapping.IncreaseAltitude:
+				z_velocity = 1
+			elif key == KeyMapping.DecreaseAltitude:
+				z_velocity = -1
+
+
+
+				# finally we set the command to be sent. The controller handles sending this at regular intervals
+			self.send_keyboard.publish(roll, pitch, yaw_velocity, z_velocity)
+
+	def keyReleaseEvent(self,event):
+		key = event.key()
+		# If we have constructed the drone controller and the key is not generated from an auto-repeating key
+		if not event.isAutoRepeat():
+			roll = 0
+			pitch = 0
+			yaw_velocity = 0
+			z_velocity = 0
+			# Note that we don't handle the release of emergency/takeoff/landing keys here, there is no need.
+			# Now we handle moving, notice that this section is the opposite (-=) of the keypress section
+			if key == KeyMapping.YawLeft:
+				yaw_velocity = 0
+			elif key == KeyMapping.YawRight:
+				yaw_velocity = 0
+			elif key == KeyMapping.PitchForward:
+				pitch = 0
+			elif key == KeyMapping.PitchBackward:
+				pitch = 0
+
+			elif key == KeyMapping.RollLeft:
+				roll = 0
+			elif key == KeyMapping.RollRight:
+				roll = 0
+
+			elif key == KeyMapping.IncreaseAltitude:
+				z_velocity = 0
+			elif key == KeyMapping.DecreaseAltitude:
+				z_velocity = 0
+
+				# finally we set the command to be sent. The controller handles sending this at regular intervals
+			self.send_keyboard.publish(roll, pitch, yaw_velocity, z_velocity)
 
 def sigint_handler(*args):
     #sys.exit()

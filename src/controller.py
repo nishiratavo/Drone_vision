@@ -16,6 +16,19 @@ from geometry_msgs.msg import Quaternion
 import numpy as np
 from math import *
 
+class KeyMapping(object):
+	PitchForward     = QtCore.Qt.Key.Key_W
+	PitchBackward    = QtCore.Qt.Key.Key_S
+	RollLeft         = QtCore.Qt.Key.Key_A
+	RollRight        = QtCore.Qt.Key.Key_D
+	YawLeft          = QtCore.Qt.Key.Key_Q
+	YawRight         = QtCore.Qt.Key.Key_E
+	IncreaseAltitude = QtCore.Qt.Key.Key_Up
+	DecreaseAltitude = QtCore.Qt.Key.Key_Down
+	Takeoff          = QtCore.Qt.Key.Key_Y
+	Land             = QtCore.Qt.Key.Key_H
+	Emergency        = QtCore.Qt.Key.Key_Space
+
 
 class controller:
 	''' Handles the PID control in every axis of the drone deppending on the flight mode '''
@@ -39,9 +52,12 @@ class controller:
 		self.last_time = 0
 		self.dy = 0
 
+		self.keyboard_mode = 0
+
 		self.image_pos = rospy.Subscriber("data",Quaternion,self.callback)
 		self.subNavdata = rospy.Subscriber('/ardrone/navdata',Navdata,self.ReceiveNavdata)
-		self.receive_key = rospy.Subscriber('/takeoff', Int32, self.keyPressEvent) 
+		self.receive_key = rospy.Subscriber('/takeoff', Int32, self.takeoff_commands) 
+		self.keyboard = rospy.Subscriber("/keyboard", Quaternion, self.keyboard_command)
 		
 		# Allow the controller to publish to the /ardrone/takeoff, land and reset topics
 		self.pubLand    = rospy.Publisher('/ardrone/land',Empty)
@@ -50,6 +66,7 @@ class controller:
 		self.pubCommand = rospy.Publisher('/cmd_vel',Twist)
 		self.pub_test = rospy.Publisher('/pid_teste',String, queue_size=10)
 		self.pub_reset = rospy.Publisher("/position", Int32, queue_size=10)
+
 
 
 	def ReceiveNavdata(self,navdata):
@@ -89,7 +106,7 @@ class controller:
 			self.pubCommand.publish(self.command)
 
 
-	def keyPressEvent(self,data):
+	def takeoff_commands(self,data):
 		# send commands and reset the controllers when requested
 		if data.data  == 1 :
 			self.roll_control.reset()
@@ -174,10 +191,10 @@ class controller:
 		if ((self.state_altitude == 0) and (self.status != 2)):
 			self.SetCommand(0,0,0,0)
 			self.SendCommand()
-			time.sleep(5)
+			time.sleep(2)
 			self.SetCommand(0,0,0,1)
 			self.SendCommand()
-			time.sleep(5)
+			time.sleep(1)
 			self.SetCommand(0,0,0,0)
 			self.SendCommand()
 			self.state_altitude = 1
@@ -265,21 +282,36 @@ class controller:
 
 
 
+	def keyboard_command(self,data):
+		if self.keyboard_mode == 1:
+			self.SetCommand(data.x,data.y,data.z,data.w)
+			self.SendCommand()
+			
+
 
 
 
 	def callback(self, data):
 		if data.w == 0:
 			self.pointer_follower_front(data)
+			self.keyboard_mode = 0
 
 		elif data.w == 2:
 			self.pointer_follower_bottom(data)
+			self.keyboard_mode = 0
 
 		elif data.w == 4:
 			self.line_follower(data)
+			self.keyboard_mode = 0
 
 		elif data.w == 5:
 			self.waypoint(data)
+			self.keyboard_mode = 0
+
+		elif data.w == 6:
+			self.keyboard_mode = 1
+
+			
 
 
 

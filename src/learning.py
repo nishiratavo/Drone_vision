@@ -20,6 +20,8 @@ mode = -1
 change_mode = 0
 image_exist = 0
 
+keyboard_mode = rospy.Publisher("data", Quaternion, queue_size = 10)
+
 class image_receiver:
 	''' Class used in the modes in which camera is required '''
 
@@ -204,8 +206,10 @@ def mode_selection(data):
 
 
 def callback(data):
-	if mode != 4:
+	if ((mode == 1) or (mode == 2) or (mode == 3)):
 		ic.callback(data)
+	if mode == 5:
+		keyboard_mode.publish(0,0,0,6)
 
 
 def ReceiveNavdata(data):
@@ -219,6 +223,7 @@ def main(args):
 	rospy.Subscriber("/mode", Int32, mode_selection)
 	rospy.Subscriber("/ardrone/image_raw",Image,callback)
 	rospy.Subscriber('/ardrone/navdata',Navdata,ReceiveNavdata)
+
 	#rospy.Subscriber("/position", Int32, self.Reset)
 	#rospy.Subscriber("/waypoint_receiver", String , self.SetWaypoint)
 
