@@ -100,7 +100,7 @@ class gui(QtGui.QWidget):
 
 		buttons = QtGui.QVBoxLayout()
 		command_label = QtGui.QLabel()
-		command_label.setText("                                     Commands")
+		command_label.setText("                                   Commands")
 		buttons.addWidget(command_label)
 
 		takeoff = QtGui.QPushButton("Take Off")
@@ -135,27 +135,31 @@ class gui(QtGui.QWidget):
 		self.ay_label = QtGui.QLabel()
 		self.az_label = QtGui.QLabel()
 
-		self.info_label = QtGui.QLabel()
+		#self.info_label = QtGui.QLabel()
 		self.battery_label = QtGui.QLabel()
+		self.battery_bar = QtGui.QProgressBar()
+		self.battery_bar.setFixedWidth(250)
+		self.last_battery = 0
 
-		self.attitude_label.setText("                         Attitude")
+		self.attitude_label.setText("                           Attitude")
 		self.data1.setText("Roll")
 		self.data2.setText("Pitch")
 		self.data3.setText("Yaw")
 		self.data4.setText("Altitude")
 
-		self.gyro_label.setText("                         Gyroscope")
+		self.gyro_label.setText("                          Gyroscope")
 		self.gx_label.setText("gx")
 		self.gy_label.setText("gy")
 		self.gz_label.setText("gz")
 
-		self.accel_label.setText("                         Accelerometer")
+		self.accel_label.setText("                        Accelerometer")
 		self.ax_label.setText("ax")
 		self.ay_label.setText("ay")
 		self.az_label.setText("az")
 
-		self.info_label.setText("                         Drone Info")
-		self.battery_label.setText("Battery :")
+		#self.info_label.setText("                         Drone Info")
+		self.battery_label.setText("                             Battery")
+
 
 		#self.frame_attitude.addWidget(self.data1)
 		#self.frame_attitude.addWidget(self.data2)
@@ -178,8 +182,9 @@ class gui(QtGui.QWidget):
 		textbox.addWidget(self.ay_label)
 		textbox.addWidget(self.az_label)
 
-		textbox.addWidget(self.info_label)
+		#textbox.addWidget(self.info_label)
 		textbox.addWidget(self.battery_label)
+		textbox.addWidget(self.battery_bar)
 
 		self.wid = AttitudeIndicator()
 		modes.addLayout(mode_buttons)
@@ -339,6 +344,7 @@ class gui(QtGui.QWidget):
 		self.ax_label.setText("ax: " + ax + u" m/s²")
 		self.ay_label.setText("ay: " + ay + u" m/s²")
 		self.az_label.setText("az: " + az + u" m/s²")
+		self.battery_bar.setValue(int(self.last_battery))
 
 
 
@@ -369,7 +375,9 @@ class gui(QtGui.QWidget):
 		yaw = data.rotZ
 		altitude = data.altd
 		battery = data.batteryPercent
-		self.battery_label.setText("Battery: " + str(battery))
+		self.last_battery = battery
+		#self.battery_label.setText("Battery: " + str(battery) + "%")
+		#self.battery_bar.setValue()
 		#roll = 20
 		#pitch = 30
 		self.rollPitchSignal.emit(roll, -pitch)
