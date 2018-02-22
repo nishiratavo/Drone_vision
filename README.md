@@ -29,6 +29,11 @@ To install ROS Kinetic you just need to follow the instructions in the [ROS inst
 sudo apt-get install ros-kinetic-ardrone-autonomy
 ```
 
+### joy package
+```
+sudo apt-get install ros-kinetic-joy ros-kinetic-joystick-drivers
+```
+
 ### cv_bridge
 ```
 sudo apt-get install ros-kinetic-cv-bridge
@@ -114,6 +119,27 @@ To fly in a square beginning in the bottom left corner send :
 ```
 0,1,0 -1,0,0 0,-1,0 1,0,0
 ```
+
+### Keyboard mode
+
+Use the keyboard to control the drone.
+
+W -> forward
+A -> left
+S -> backward
+D -> right
+Q -> counter clockwise
+E -> clockwise
+R -> up
+F -> down
+
+### Save data
+
+Click the save data button to start saving data, click again to stop. It will generate a data.txt file in the package directory. 
+
+**CAUTION**
+
+If you press the save data button again it will overwrite the previous data.
 
 
 ## Authors
