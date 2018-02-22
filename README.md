@@ -125,12 +125,19 @@ To fly in a square beginning in the bottom left corner send :
 Use the keyboard to control the drone.
 
 W -> forward
+
 A -> left
+
 S -> backward
+
 D -> right
+
 Q -> counter clockwise
+
 E -> clockwise
+
 R -> up
+
 F -> down
 
 ### Save data
