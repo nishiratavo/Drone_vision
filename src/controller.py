@@ -183,8 +183,8 @@ class controller:
 			self.pitch_control.setConstants(0.1,0,0)
 			self.first_time = 1
 
-		x = int(-data.x)/300.0
-		y = int(-data.y)/180.0
+		x = int(-data.x)/600.0
+		y = int(-data.y)/360.0
 		state = int(data.w)
 
 
