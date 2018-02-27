@@ -75,7 +75,7 @@ catkin_make
 ```
 
 ### Upload do Dropbox
-To upload data to Dropbox you need to create an app in your dropbox account[link](https://www.dropbox.com/developers/apps). Then click the "generate access token" button and cut/paste into the gui.py line 146 in place of ```<auth_token>```. 
+To upload data to Dropbox you need to create an app in your dropbox account [link](https://www.dropbox.com/developers/apps). Then click the "generate access token" button and cut/paste into the gui.py line 146 in place of ```<auth_token>```. 
 
 
 ## How to use
