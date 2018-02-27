@@ -50,6 +50,11 @@ sudo apt-get install python-pyside
 ### OpenCV 3.4
 To install OpenCV you just need to follow the instructions in this [page](https://www.pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/).
 
+### Dropbox API
+```
+sudo pip install dropbox
+```
+
 ## Install
 To install this package run these commands in the terminal.
 
@@ -68,6 +73,10 @@ Once it is completed
 cd ~/catkin_ws
 catkin_make
 ```
+
+### Upload do Dropbox
+To upload data to Dropbox you need to create an app in your dropbox account[link](https://www.dropbox.com/developers/apps). Then click the "generate access token" button and cut/paste into the gui.py line 146 in place of ```<auth_token>```. 
+
 
 ## How to use
 First turn on the AR.Drone and connect to it via wifi.
@@ -142,11 +151,15 @@ F -> down
 
 ### Save data
 
-Click the save data button to start saving data, click again to stop. It will generate a data.txt file in the package directory. 
+Write the name of the file on the textbox. Click the save data button to start saving data, click again to stop. It will generate a data.txt file in the package directory. 
 
 **CAUTION**
 
 If you press the save data button again it will overwrite the previous data.
+
+### Upload data
+
+To upload the data to your dropbox account just click the upload button.
 
 
 ## Authors

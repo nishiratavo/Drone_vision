@@ -22,7 +22,7 @@ import numpy as np
 from ai import AttitudeIndicator
 import signal
 from subprocess import call
-
+import dropbox
 
 
 class KeyMapping(object):
@@ -38,6 +38,22 @@ class KeyMapping(object):
 	Land             = QtCore.Qt.Key.Key_H
 	Emergency        = QtCore.Qt.Key.Key_Space
 
+
+#self.access_token
+
+'''class TransferData:
+    def __init__(self, access_token):
+        self.access_token = access_token
+
+    def upload_file(self, file_from, file_to):
+        """upload a file to Dropbox using API v2
+        """
+        dbx = dropbox.Dropbox(self.access_token)
+
+        with open(file_from, 'rb') as f:
+            dbx.files_upload(f.read(), file_to)'''
+
+
 class gui(QtGui.QWidget):
 	''' Class for the graphical interface '''
 
@@ -46,6 +62,7 @@ class gui(QtGui.QWidget):
 	update_raw_data_signal = Signal(float, float, float, float, float, float)
 
 	def __init__(self):
+
 
 		super(gui, self).__init__()
 		self.mode = rospy.Publisher("/mode", Int32, queue_size = 10)
@@ -113,17 +130,26 @@ class gui(QtGui.QWidget):
 		emergency.clicked.connect(self.emergency_clicked)
 		buttons.addWidget(emergency)
 
+		self.data_name = QtGui.QLineEdit()
+		self.data_name.setText('data_0.txt')
+		self.data_name.setFixedWidth(250)
+		buttons.addWidget(self.data_name)
+
 		self.save_data = QtGui.QPushButton("Save Data")
 		self.save_data.clicked.connect(self.save_data_clicked)
 		buttons.addWidget(self.save_data)
+
+		self.upload_data = QtGui.QPushButton("Upload Data")
+		self.upload_data.clicked.connect(self.upload_data_clicked)
+		buttons.addWidget(self.upload_data)
+		self.upload_data.setEnabled(False)
+		self.access_token = '<auth_token>'  # -------------------Change this line-------------------------------------
 
 		self.attitude_label = QtGui.QLabel()
 		self.data1 = QtGui.QLabel()
 		self.data2 = QtGui.QLabel()
 		self.data3 = QtGui.QLabel()
 		self.data4 = QtGui.QLabel()
-		#self.frame_attitude = QtGui.QFrame()
-		#self.frame_attitude.setFrameStyle(0x0001| 0x0010)
 
 		self.gyro_label = QtGui.QLabel()
 		self.gx_label = QtGui.QLabel()
@@ -281,10 +307,11 @@ class gui(QtGui.QWidget):
 		if self.half_data == -1:
 			self.save_data.setText("Stop saving data")
 			self.half_data = 0
+			self.upload_data.setEnabled(True)
 		else:
 			self.save_data.setText("Save Data")
 			self.half_data = -1
-			path = os.path.join(os.path.expanduser('~'), 'catkin_ws', 'src', 'Drone_vision', 'src', 'data.txt')
+			path = os.path.join(os.path.expanduser('~'), 'catkin_ws', 'src', 'Drone_vision', 'src', self.data_name.text())
 			file = open(path, "w")
 			file.write('roll pitch yaw altitude gx gy gz ax ay az\n')
 			for x in self.all_data:
@@ -292,6 +319,21 @@ class gui(QtGui.QWidget):
 				file.write(line)
 				file.write('\n')
 			file.close()
+
+	def upload_data_clicked(self):
+		self.upload_data.setEnabled(False)
+    	#transferData = TransferData(access_token)
+		path = os.path.join(os.path.expanduser('~'), 'catkin_ws', 'src', 'Drone_vision', 'src', self.data_name.text())
+		file_from = path #self.data_name.text()
+
+		file_to = '/Drone_test/' + self.data_name.text()  # The full path to upload the file to, including the file name
+
+		dbx = dropbox.Dropbox(self.access_token)
+
+		with open(file_from, 'rb') as f:
+			dbx.files_upload(f.read(), file_to)
+
+		self.upload_data.setEnabled(True)
 				
 
 
