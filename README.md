@@ -11,7 +11,7 @@ The foundation of the project is based on [ROS(Robot Operating System)](http://w
 In the ROS environment there is one thing called packages, you can think of them as libraries, that make one's life easier. This project uses some of them, a interesting one being used is the [ardrone_autonomy package](https://github.com/AutonomyLab/ardrone_autonomy). It manages the AR.Drone SDK, making the control of the drone by software to be very easy.
 
 ### Python(OpenCV)
-Since this is a camera based tracking project it needs to do image processing, which can be quite easy with [OpenCV](https://opencv.org/). The image processing algorithm it is using right now is based on a color tracking approach. It creates a mask based on a RGB threshold then applies it on the original image, as a result we have only the green dot. As a final step it recognizes the green dot as a circle and sends the x,y position to the control algorithm.
+Since this is a camera based tracking project it needs to do image processing, which can be quite easy with [OpenCV](https://opencv.org/). The image processing algorithm it is using right now is based on a color tracking approach. It creates a mask based on a RGB threshold then applies it on the original image, as a result we have only the green dot. As a final step it recognizes the green dot as a circle and sends the x,y position to the control algorithm. (All the image processing algorithms are in learning.py)
 
 ### Control(PID)
 For the tracking it uses a simple [PID controller](https://en.wikipedia.org/wiki/PID_controller). The constants are optimized for the AR.Drone we used, so you may need to change them (in controller.py).
@@ -84,8 +84,8 @@ cd ~/catkin_ws
 catkin_make
 ```
 
-### Upload do Dropbox
-To upload data to Dropbox you need to create an app in your dropbox account [link](https://www.dropbox.com/developers/apps). Then click the "generate access token" button and cut/paste into the gui.py line 146 in place of ```<auth_token>```. 
+### Upload to Dropbox
+To upload data to Dropbox you need to create an app in your dropbox account ([link])(https://www.dropbox.com/developers/apps). Then click the "generate access token" button and cut/paste into the gui.py line 146 in place of ```<auth_token>```. 
 
 
 ## How to use
