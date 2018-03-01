@@ -14,7 +14,17 @@ In the ROS environment there is one thing called packages, you can think of them
 Since this is a camera based tracking project it needs to do image processing, which can be quite easy with [OpenCV](https://opencv.org/). The image processing algorithm it is using right now is based on a color tracking approach. It creates a mask based on a RGB threshold then applies it on the original image, as a result we have only the green dot. As a final step it recognizes the green dot as a circle and sends the x,y position to the control algorithm.
 
 ### Control(PID)
-For the tracking it uses a simple [PID controller](https://en.wikipedia.org/wiki/PID_controller). The constants are optimized for the AR.Drone we used, so you may need to change them (just one line of code in controller.py).
+For the tracking it uses a simple [PID controller](https://en.wikipedia.org/wiki/PID_controller). The constants are optimized for the AR.Drone we used, so you may need to change them (in controller.py).
+
+The front camera mode uses a PID controller in roll, altitude and pitch. The PIDs of roll and altitude are associated with the green pointer position. The pitch PID is associated with the position of the drone, it tries to make the drone stay in the same place. (You can change it at controller.py)
+
+The bottom camera mode uses a PID controller in roll and pitch. Both of them are associated with the green pointer position. (You can change it at controller.py)
+
+The line follower mode uses a PID controller in roll and yaw. The roll PID tries to centralize the drone with the led strip and the yaw PID tries to keep the drone parallel to the strip. (You can change it at controller.py)
+
+The waypoint mode uses a PID controller in roll, pitch and altitude. All of them are associated with user defined positions the drone needs to reach. (You can change it at waypoint.py)
+
+
 
 
 ## Prerequisites

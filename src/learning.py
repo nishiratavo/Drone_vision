@@ -83,14 +83,10 @@ class image_receiver:
 		cv2.circle(one_color_image, (int(best_x), int(best_y)), 5,(0,255,0),-1)
 		cv2.circle(one_color_image, (int(worst_x), int(worst_y)), 5,(0,255,0),-1)
 		self.image_pos_pub.publish(self.worst_x,detecting,atan(ang),self.camera)
-		#cv2.namedWindow("Image window")
-		#cv2.startWindowThread()
 		one_color_image = cv2.resize(one_color_image, (0,0), fx = 0.7, fy = 0.7)
 		crop_img = cv2.resize(crop_img, (0,0), fx = 0.7, fy = 0.7)
 		cv2.imshow("Image window", np.hstack([one_color_image,crop_img]))
 		image_exist = 1
-		#cv2.namedWindow("Image window")
-		#cv2.moveWindow("Image window", 100,100)
 		cv2.waitKey(3)
 
 
@@ -166,9 +162,8 @@ class image_receiver:
 ic = None
 way = None
 ic = image_receiver(-1)
-#ic.unsub()
 way = waypoint_mode()
-#way.unsub()
+
 
 
 
@@ -180,10 +175,6 @@ def mode_selection(data):
 	global image_exist
 	global way
 	mode = data.data
-	'''if mode == 4:
-		ic.unsub()
-		cv2.destroyAllWindows()
-		way.sub()'''
 
 	if mode == 1:
 		ic.camera = -1
@@ -199,10 +190,6 @@ def mode_selection(data):
 
 
 
-'''def change_mode(data):
-
-	global change_mode
-	change_mode = data.data'''
 
 
 def callback(data):
@@ -224,26 +211,6 @@ def main(args):
 	rospy.Subscriber("/ardrone/image_raw",Image,callback)
 	rospy.Subscriber('/ardrone/navdata',Navdata,ReceiveNavdata)
 
-	#rospy.Subscriber("/position", Int32, self.Reset)
-	#rospy.Subscriber("/waypoint_receiver", String , self.SetWaypoint)
-
-
-
-	#rospy.Subscriber("/change_mode", Int32, change_mode)
-	'''while mode == 0:
-		pass
-	if mode == 4:
-		#rospy.init_node('image_receiver', anonymous=True)
-		ic = waypoint_mode()
-	elif mode == 1:
-		#rospy.init_node('image_receiver', anonymous=True)
-		ic = image_receiver(0)
-	elif mode == 2:
-		#rospy.init_node('image_receiver', anonymous=True)
-		ic = image_receiver(1)
-	else:
-		ic = image_receiver(3)'''
-	#rospy.init_node('image_receiver', anonymous=True)
 	try:
 		rospy.spin()
 	except KeyboardInterrupt:

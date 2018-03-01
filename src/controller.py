@@ -194,7 +194,7 @@ class controller:
 			time.sleep(2)
 			self.SetCommand(0,0,0,1)
 			self.SendCommand()
-			time.sleep(1)
+			time.sleep(0.5)
 			self.SetCommand(0,0,0,0)
 			self.SendCommand()
 			self.state_altitude = 1

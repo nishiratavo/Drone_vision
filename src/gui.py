@@ -143,7 +143,7 @@ class gui(QtGui.QWidget):
 		self.upload_data.clicked.connect(self.upload_data_clicked)
 		buttons.addWidget(self.upload_data)
 		self.upload_data.setEnabled(False)
-		self.access_token = '<auth_token>'  # -------------------Change this line-------------------------------------
+		self.access_token = 'xgD_7S4FLvAAAAAAAAA8FWLg3nk6hc4Uy9Z6IwQ8NTDHAG8tie4xqePImXqUqWoD'  # -------------------Change this line-------------------------------------
 
 		self.attitude_label = QtGui.QLabel()
 		self.data1 = QtGui.QLabel()
