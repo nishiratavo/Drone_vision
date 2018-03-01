@@ -1,6 +1,6 @@
 # Drone Vision
 
-AR.Drone camera based tracking. In the actual phase it has 4 modes, a green laser pointer tracking, which can use any of the two cameras, a led strip follower with the bottom camera (like a line follower robot, but with a drone), and a path follower with user defined paths.
+AR.Drone camera based tracking. In the actual phase it has 5 modes, a green laser pointer tracking, which can use any of the two cameras, a led strip follower with the bottom camera (like a line follower robot, but with a drone), a path follower with user defined paths and a keyboard control for the drone.
 
 ## Getting Started
 
